@@ -2,11 +2,12 @@ import {createRouteInfoTemplate} from './components/route-info';
 import {createMenuTemplate} from './components/site-menu';
 import {createFiltersTemplate} from './components/filters';
 import {createSortTemplate} from './components/sort';
-import {createRouteListTemplate} from './components/route-trip';
+import {createRouteDayTemplate, createRouteListTemplate} from './components/route-trip';
 import {createWaypointTemplate} from './components/waypoint';
 import {createWaypointEditTemplate} from './components/waypoint-edit';
 
 const WAYPOINTS_NUMBER = 3;
+const DAYS_NUMBER = 3;
 
 const render = (container, template, place = `beforeend`) => {
   container.insertAdjacentHTML(place, template);
@@ -26,8 +27,14 @@ render(tripEventsBlock, createSortTemplate());
 render(tripEventsBlock, createWaypointEditTemplate(true));
 render(tripEventsBlock, createRouteListTemplate());
 
-const tripEventsListBlock = tripEventsBlock.querySelector(`.trip-events__list`);
+const tripEventsDaysBlock = tripEventsBlock.querySelector(`.trip-days`);
 
-for (let i = 0; i < WAYPOINTS_NUMBER; i++) {
-  render(tripEventsListBlock, createWaypointTemplate());
+for (let i = 0; i < DAYS_NUMBER; i++) {
+  render(tripEventsDaysBlock, createRouteDayTemplate());
+
+  const tripEventsListBlock = tripEventsDaysBlock.querySelector(`.day:last-child .trip-events__list`);
+
+  for (let j = 0; j < WAYPOINTS_NUMBER; j++) {
+    render(tripEventsListBlock, createWaypointTemplate());
+  }
 }

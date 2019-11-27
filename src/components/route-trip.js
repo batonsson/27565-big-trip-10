@@ -13,10 +13,8 @@ const createRouteDayTemplate = () => {
 
 const createRouteListTemplate = () => {
   return (
-    `<ul class="trip-days">
-      ${createRouteDayTemplate()}
-    <ul>`
+    `<ul class="trip-days"><ul>`
   );
 };
 
-export {createRouteListTemplate};
+export {createRouteDayTemplate, createRouteListTemplate};
