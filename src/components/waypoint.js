@@ -1,4 +1,4 @@
-export const createWaypointTemplate = () => {
+const createWaypointTemplate = () => {
   return (
     `<li class="trip-events__item">
       <div class="event">
@@ -35,4 +35,14 @@ export const createWaypointTemplate = () => {
       </div>
     </li>`
   );
+};
+
+export const createWaypoints = (count) => {
+  let waypoints = ``;
+
+  for (let i = 0; i < count; i++) {
+    waypoints += createWaypointTemplate();
+  }
+
+  return waypoints;
 };

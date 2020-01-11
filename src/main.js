@@ -3,9 +3,12 @@ import {createMenuTemplate} from './components/site-menu';
 import {createFiltersTemplate} from './components/filters';
 import {createSortTemplate} from './components/sort';
 import {createRouteDayTemplate, createRouteListTemplate} from './components/route-trip';
-import {createWaypointTemplate} from './components/waypoint';
+import {createWaypoints} from './components/waypoint';
 import {createWaypointEditTemplate} from './components/waypoint-edit';
 
+//
+import {createWaypoint} from './mocks/waypoint';
+//
 const WAYPOINTS_NUMBER = 3;
 const DAYS_NUMBER = 3;
 
@@ -34,7 +37,8 @@ for (let i = 0; i < DAYS_NUMBER; i++) {
 
   const tripEventsListBlock = tripEventsDaysBlock.querySelector(`.day:last-child .trip-events__list`);
 
-  for (let j = 0; j < WAYPOINTS_NUMBER; j++) {
-    render(tripEventsListBlock, createWaypointTemplate());
-  }
+  render(tripEventsListBlock, createWaypoints(WAYPOINTS_NUMBER));
 }
+
+const waypoint = createWaypoint();
+console.log(waypoint);
