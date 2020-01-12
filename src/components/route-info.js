@@ -1,9 +1,77 @@
-export const createRouteInfoTemplate = () => {
+const fetchRouteCities = (waypoints) => {
+  const cities = [];
+
+  waypoints.forEach((waypoint) => {
+    cities.push(waypoint.city);
+  });
+
+  return cities;
+};
+
+const fetchRouteDate = (waypoints) => {
+  const date = {
+    start: null,
+    end: null
+  };
+
+  waypoints.forEach((waypoint) => {
+    if (waypoint.time.start.raw < date.start || date.start === null) {
+      date.start = waypoint.time.start.MD;
+    }
+
+    if (waypoint.time.end.raw > date.end || date.end === null) {
+      date.end = waypoint.time.end.MD;
+    }
+  });
+
+  return date;
+};
+
+const fetchRouteInfo = (waypoints) => {
+  const route = {
+    cities: fetchRouteCities(waypoints),
+    date: fetchRouteDate(waypoints)
+  };
+
+  return route;
+};
+
+const createCitiesMarkup = (cities) => {
+  const citiesMarkup = cities.join(`, `);
+
+  return `<h1 class="trip-info__title">${citiesMarkup}</h1>`;
+};
+
+const createDateMarkup = (date) => {
+  const {start, end} = date;
+
+  return `${start} &mdash; ${end}`;
+};
+
+export const createRouteInfoMarkup = (waypoints) => {
+  const route = fetchRouteInfo(waypoints);
+
   return (
     `<div class="trip-info__main">
-      <h1 class="trip-info__title">Amsterdam &mdash; ... &mdash; Amsterdam</h1>
+      <h1 class="trip-info__title">${createCitiesMarkup(route.cities)}</h1>
 
-      <p class="trip-info__dates">Mar 18&nbsp;&mdash;&nbsp;21</p>
+      <p class="trip-info__dates">${createDateMarkup(route.date)}</p>
     </div>`
   );
+};
+
+export const getRouteCost = (waypoints) => {
+  let total = 0;
+
+  waypoints.forEach((waypoint) => {
+    const {price, offers} = waypoint;
+
+    total += price;
+
+    offers.forEach((offer) => {
+      total += offer.price;
+    });
+  });
+
+  return total;
 };
