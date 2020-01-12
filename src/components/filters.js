@@ -1,25 +1,45 @@
-import {capitalizeFirstLetter} from '../utils';
+import {Utils} from '../utils';
 
-const createFilterMarkup = (filter) => {
-  const {value, type, isActive} = filter;
+export class Filters {
+  constructor(filterList) {
+    this._filterList = filterList;
+  }
 
-  return `<div class="trip-filters__filter">
-            <input id="filter-${filter.value}" class="trip-filters__filter-input  visually-hidden" type="${type}" name="trip-filter" value="${value}" ${isActive ? `checked` : ``}>
-            <label class="trip-filters__filter-label" for="filter-${value}">${capitalizeFirstLetter(value)}</label>
-          </div>`;
-};
+  _createFilterMarkup(filter) {
+    const {value, type, isActive} = filter;
 
-export const createFiltersMarkup = (filters) => {
-  let elements = ``;
+    return (
+      `<div class="trip-filters__filter">
+        <input id="filter-${value}" class="trip-filters__filter-input  visually-hidden" type="${type}" name="trip-filter" value="${value}" ${isActive ? `checked` : ``}>
+        <label class="trip-filters__filter-label" for="filter-${value}">${Utils.capitalizeFirstLetter(value)}</label>
+      </div>`
+    );
+  }
 
-  filters.forEach((element) => {
-    elements += createFilterMarkup(element);
-  });
+  getTemplate() {
+    let filterListMarkup = ``;
 
-  return (
-    `<form class="trip-filters" action="#" method="get">
-      ${elements}
-      <button class="visually-hidden" type="submit">Accept filter</button>
-    </form>`
-  );
-};
+    this._filterList.forEach((element) => {
+      filterListMarkup += this._createFilterMarkup(element);
+    });
+
+    return (
+      `<form class="trip-filters" action="#" method="get">
+        ${filterListMarkup}
+        <button class="visually-hidden" type="submit">Accept filter</button>
+      </form>`
+    );
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = Utils.createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

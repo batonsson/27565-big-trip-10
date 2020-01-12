@@ -1,19 +1,41 @@
-const createMenuElementMarkup = (element) => {
-  const {value, isActive} = element;
+import {Utils} from '../utils';
 
-  return `<a class="trip-tabs__btn  ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${value}</a>`;
-};
+export class Menu {
+  constructor(menuList) {
+    this._menuList = menuList;
+  }
 
-export const createMenuMarkup = (menu) => {
-  let elements = ``;
+  _createMenuElementMarkup(element) {
+    const {value, isActive} = element;
 
-  menu.forEach((element) => {
-    elements += createMenuElementMarkup(element);
-  });
+    return (
+      `<a class="trip-tabs__btn  ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${value}</a>`
+    );
+  }
 
-  return (
-    `<nav class="trip-controls__trip-tabs  trip-tabs">
-      ${elements}
-    </nav>`
-  );
-};
+  getTemplate() {
+    let menuListMarkup = ``;
+
+    this._menuList.forEach((menuListElement) => {
+      menuListMarkup += this._createMenuElementMarkup(menuListElement);
+    });
+
+    return (
+      `<nav class="trip-controls__trip-tabs  trip-tabs">
+        ${menuListMarkup}
+      </nav>`
+    );
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = Utils.createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

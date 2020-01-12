@@ -1,33 +1,19 @@
 import {TYPES, CITIES, OFFERS} from '../const';
-import {
-  getRandomNumber,
-  getRandomArrayItem,
-  getRandomDate,
-  formatDate
-} from '../utils';
+import {Utils} from '../utils';
+import {Waypoint} from '../components/waypoint';
 
 const DESTINATION = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 
 const DESTINATION_SENTENCE_LIMIT = 2;
 const OFFERS_LIMIT = 2;
-const SIGHTS_LIMIT = 6;
-
-function Waypoint(type, city, time, price, offers, destination, sights) {
-  this.type = type;
-  this.city = city;
-  this.time = time;
-  this.price = price;
-  this.offers = offers;
-  this.destination = destination;
-  this.sights = sights;
-}
+const PHOTOS_LIMIT = 6;
 
 const getType = () => {
-  return getRandomArrayItem(TYPES).value;
+  return Utils.getRandomArrayItem(TYPES).value;
 };
 
 const getCity = () => {
-  return getRandomArrayItem(CITIES);
+  return Utils.getRandomArrayItem(CITIES);
 };
 
 const getTimeDiff = (start, end) => {
@@ -65,8 +51,8 @@ const getTimeDiff = (start, end) => {
 };
 
 const getTime = () => {
-  let start = getRandomDate();
-  let end = getRandomDate();
+  let start = Utils.getRandomDate();
+  let end = Utils.getRandomDate();
 
   if (end < start) {
     [start, end] = [end, start];
@@ -75,17 +61,17 @@ const getTime = () => {
   const time = {
     start: {
       raw: start,
-      F: formatDate(start, `F`),
-      HM: formatDate(start, `HM`),
-      DT: formatDate(start, `DT`),
-      MD: formatDate(start, `MD`)
+      F: Utils.formatDate(start, `F`),
+      HM: Utils.formatDate(start, `HM`),
+      DT: Utils.formatDate(start, `DT`),
+      MD: Utils.formatDate(start, `MD`)
     },
     end: {
       raw: end,
-      F: formatDate(end, `F`),
-      HM: formatDate(end, `HM`),
-      DT: formatDate(end, `DT`),
-      MD: formatDate(end, `MD`)
+      F: Utils.formatDate(end, `F`),
+      HM: Utils.formatDate(end, `HM`),
+      DT: Utils.formatDate(end, `DT`),
+      MD: Utils.formatDate(end, `MD`)
     },
     diff: getTimeDiff(start, end)
   };
@@ -94,15 +80,15 @@ const getTime = () => {
 };
 
 const getPrice = () => {
-  return getRandomNumber(10, 1000);
+  return Utils.getRandomNumber(10, 1000);
 };
 
 const getOffers = () => {
   const offers = new Set();
-  const count = getRandomNumber(0, OFFERS_LIMIT);
+  const count = Utils.getRandomNumber(0, OFFERS_LIMIT);
 
   for (let i = 0; i < count; i++) {
-    offers.add(getRandomArrayItem(OFFERS));
+    offers.add(Utils.getRandomArrayItem(OFFERS));
   }
 
   return Array.from(offers);
@@ -111,24 +97,24 @@ const getOffers = () => {
 const getDestination = () => {
   let destination = ``;
   const sentences = DESTINATION.split(`.`);
-  const count = getRandomNumber(1, DESTINATION_SENTENCE_LIMIT);
+  const count = Utils.getRandomNumber(1, DESTINATION_SENTENCE_LIMIT);
 
   for (let i = 0; i < count; i++) {
-    destination += ` ${getRandomArrayItem(sentences).trim()}`;
+    destination += ` ${Utils.getRandomArrayItem(sentences).trim()}`;
   }
 
   return destination;
 };
 
-const getSights = () => {
-  const sights = [];
-  const count = getRandomNumber(1, SIGHTS_LIMIT);
+const getPhotos = () => {
+  const photos = [];
+  const count = Utils.getRandomNumber(1, PHOTOS_LIMIT);
 
   for (let i = 0; i < count; i++) {
-    sights.push(`http://picsum.photos/300/150?r=${Math.random()}`);
+    photos.push(`http://picsum.photos/300/150?r=${Math.random()}`);
   }
 
-  return sights;
+  return photos;
 };
 
 export const createWaypoint = () => {
@@ -139,6 +125,6 @@ export const createWaypoint = () => {
       getPrice(),
       getOffers(),
       getDestination(),
-      getSights()
+      getPhotos()
   );
 };

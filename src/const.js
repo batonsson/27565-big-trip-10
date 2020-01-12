@@ -63,12 +63,8 @@ export const TYPES = [
     group: `transfer`
   },
   {
-    value: `taxi`,
-    group: `transfer`
-  },
-  {
     value: `train`,
-    group: `transport`
+    group: `transfer`
   }
 ];
 

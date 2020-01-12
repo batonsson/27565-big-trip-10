@@ -1,13 +1,13 @@
-import {menu} from './mocks/site-menu';
-import {filters} from './mocks/filters';
+import {menuList} from './mocks/site-menu';
+import {filterOptions} from './mocks/filters';
+import {sortOptions} from './mocks/sort';
 import {createWaypoint} from './mocks/waypoint';
 
-import {createRouteInfoMarkup, getRouteCost} from './components/route-info';
-import {createMenuMarkup} from './components/site-menu';
-import {createFiltersMarkup} from './components/filters';
-import {createSortMarkup} from './components/sort';
-import {createRouteListMarkup} from './components/route-trip';
-import {createWaypointEditMarkup} from './components/waypoint-edit';
+import {RouteInfo} from './components/route-info';
+import {Menu} from './components/site-menu';
+import {Filters} from './components/filters';
+import {Sort} from './components/sort';
+import {RouteTrip} from './components/route-trip';
 
 const WAYPOINTS_NUMBER = 10;
 
@@ -17,23 +17,27 @@ for (let i = 0; i < WAYPOINTS_NUMBER; i++) {
   waypoints.push(createWaypoint());
 }
 
-const render = (container, template, place = `beforeend`) => {
-  container.insertAdjacentHTML(place, template);
+const _RouteInfo = new RouteInfo(waypoints);
+const _Menu = new Menu(menuList);
+const _Filters = new Filters(filterOptions);
+const _Sort = new Sort(sortOptions);
+const _RouteTrip = new RouteTrip(waypoints);
+
+const render = (container, element, before) => {
+  container.insertBefore(element, before);
 };
 
 const tripMainBlock = document.querySelector(`.trip-main`);
 const tripEventsBlock = document.querySelector(`.trip-events`);
 const tripRouteInfoBlock = tripMainBlock.querySelector(`.trip-main__trip-info`);
-const tripCost = tripRouteInfoBlock.querySelector(`.trip-info__cost-value`);
+const tripCost = tripRouteInfoBlock.querySelector(`.trip-info__cost`);
+const tripCostValue = tripCost.querySelector(`.trip-info__cost-value`);
 const tripControlsBlock = tripMainBlock.querySelector(`.trip-main__trip-controls`);
-const tripControlsMenuHeadline = tripControlsBlock.querySelector(`h2:first-child`);
-const tripControlsFiltersHeadline = tripControlsBlock.querySelector(`h2:last-child`);
 
-tripCost.textContent = getRouteCost(waypoints);
+tripCostValue.textContent = _RouteInfo.cost;
 
-render(tripRouteInfoBlock, createRouteInfoMarkup(waypoints), `afterbegin`);
-render(tripControlsMenuHeadline, createMenuMarkup(menu), `afterend`);
-render(tripControlsFiltersHeadline, createFiltersMarkup(filters), `afterend`);
-render(tripEventsBlock, createSortMarkup());
-render(tripEventsBlock, createWaypointEditMarkup(waypoints.slice(0)[0], true));
-render(tripEventsBlock, createRouteListMarkup(waypoints));
+render(tripRouteInfoBlock, _RouteInfo.getElement(), tripCost);
+render(tripControlsBlock, _Menu.getElement());
+render(tripControlsBlock, _Filters.getElement());
+render(tripEventsBlock, _Sort.getElement());
+render(tripEventsBlock, _RouteTrip.getElement());

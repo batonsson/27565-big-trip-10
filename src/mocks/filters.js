@@ -1,4 +1,4 @@
-export const filters = [
+export const filterOptions = [
   {
     value: `everything`,
     type: `radio`,

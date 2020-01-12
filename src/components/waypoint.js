@@ -1,67 +1,121 @@
-import {capitalizeFirstLetter} from '../utils';
+import {Utils} from '../utils';
+import {WaypointEdit} from './waypoint-edit';
 
-const createOfferMarkup = (offer) => {
-  const {type, price} = offer;
-  return `<li class="event__offer">
-            <span class="event__offer-title">${type}</span>
-            &plus;
-            &euro;&nbsp;<span class="event__offer-price">${price}</span>
-          </li>`;
-};
+export class Waypoint {
+  constructor(type, city, time, price, offers, destination, photos) {
+    this._type = type;
+    this._city = city;
+    this._time = time;
+    this._price = price;
+    this._offers = offers;
+    this._destination = destination;
+    this._photos = photos;
+    this._edit = new WaypointEdit(this).getElement();
+  }
 
-const createOfferListMarkup = (offers) => {
-  let offersMarkup = ``;
+  get type() {
+    return this._type;
+  }
 
-  offers.forEach((offer) => {
-    offersMarkup += createOfferMarkup(offer);
-  });
+  get city() {
+    return this._city;
+  }
 
-  return `<ul class="event__selected-offers">
-            ${offersMarkup}
-          </ul>`;
-};
+  get time() {
+    return this._time;
+  }
 
-const createWaypointMarkup = (waypoint) => {
-  const {type, time, price, offers} = waypoint;
+  get price() {
+    return this._price;
+  }
 
-  return (
-    `<li class="trip-events__item">
-      <div class="event">
-        <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
-        </div>
-        <h3 class="event__title">${capitalizeFirstLetter(type)}</h3>
+  get offers() {
+    return this._offers;
+  }
 
-        <div class="event__schedule">
-          <p class="event__time">
-            <time class="event__start-time" datetime="${time.start.DT}">${time.start.HM}</time>
-            &mdash;
-            <time class="event__end-time" datetime="${time.end.DT}">${time.end.HM}</time>
+  get destination() {
+    return this._destination;
+  }
+
+  get photos() {
+    return this._photos;
+  }
+
+  _createOfferMarkup(offer) {
+    const {type, price} = offer;
+    return (
+      `<li class="event__offer">
+        <span class="event__offer-title">${type}</span>
+        &plus;
+        &euro;&nbsp;<span class="event__offer-price">${price}</span>
+      </li>`
+    );
+  }
+
+  _createOfferListMarkup() {
+    let offersMarkup = ``;
+
+    this._offers.forEach((offer) => {
+      offersMarkup += this._createOfferMarkup(offer);
+    });
+
+    return (
+      `<ul class="event__selected-offers">
+        ${offersMarkup}
+      </ul>`
+    );
+  }
+
+  getTemplate() {
+    return (
+      `<li class="trip-events__item">
+        <div class="event">
+          <div class="event__type">
+            <img class="event__type-icon" width="42" height="42" src="img/icons/${this._type}.png" alt="Event type icon">
+          </div>
+          <h3 class="event__title">${Utils.capitalizeFirstLetter(this._type)}</h3>
+
+          <div class="event__schedule">
+            <p class="event__time">
+              <time class="event__start-time" datetime="${this._time.start.DT}">${this._time.start.HM}</time>
+              &mdash;
+              <time class="event__end-time" datetime="${this._time.end.DT}">${this._time.end.HM}</time>
+            </p>
+            <p class="event__duration">${this._time.diff.formatted}</p>
+          </div>
+
+          <p class="event__price">
+            &euro;&nbsp;<span class="event__price-value">${this._price}</span>
           </p>
-          <p class="event__duration">${time.diff.formatted}</p>
+
+          <h4 class="visually-hidden">Offers:</h4>
+          ${this._createOfferListMarkup(this._offers)}
+
+          <button class="event__rollup-btn" type="button">
+            <span class="visually-hidden">Open event</span>
+          </button>
         </div>
+      </li>`
+    );
+  }
 
-        <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${price}</span>
-        </p>
+  getElement() {
+    if (!this._element) {
+      this._element = Utils.createElement(this.getTemplate());
+    }
 
-        <h4 class="visually-hidden">Offers:</h4>
-        ${createOfferListMarkup(offers)}
+    return this._element;
+  }
 
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
-      </div>
-    </li>`
-  );
-};
+  changeElement(isEdit) {
+    if (isEdit) {
+      this._element.parentNode.replaceChild(this._element, this._edit);
+    } else {
+      this._edit.parentNode.replaceChild(this._edit, this._element);
+    }
+  }
 
-export const createWaypoints = (waypoints) => {
-  let waypointsMarkup = ``;
-
-  waypoints.forEach((waypoint) => {
-    waypointsMarkup += createWaypointMarkup(waypoint);
-  });
-
-  return waypointsMarkup;
-};
+  removeElement() {
+    this._element = null;
+  }
+}
