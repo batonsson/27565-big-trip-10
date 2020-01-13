@@ -1,3 +1,7 @@
+export const KEYCODES = {
+  ESC: 27
+};
+
 export const MONTHS = {
   longhands: [
     `January`,
