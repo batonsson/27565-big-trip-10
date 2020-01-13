@@ -1,3 +1,5 @@
+import {KEYCODES} from './const';
+
 import {menuList} from './mocks/site-menu';
 import {filterOptions} from './mocks/filters';
 import {sortOptions} from './mocks/sort';
@@ -43,39 +45,78 @@ tripCostValue.textContent = _RouteInfo.cost;
 render(tripRouteInfoBlock, _RouteInfo.getElement(), tripCost);
 render(tripControlsBlock, _Menu.getElement());
 render(tripControlsBlock, _Filters.getElement());
-render(tripEventsBlock, _Sort.getElement());
-render(tripEventsBlock, _RouteTrip.getElement());
 
-const tripDayListBlock = tripEventsBlock.querySelector(`.trip-days`);
-const dayList = (_RouteTrip.fetchDayList());
+if (waypoints.length) {
+  let closeWaypointEditEscHandler = null;
 
-dayList.forEach((day) => {
-  const _RouteDay = new RouteDay(day);
+  const openWaypointEdit = (waypoint, waypointEdit) => {
+    // close open waypoint edit form
+    if (tripEventsBlock.querySelector(`.event--edit`)) {
+      document.dispatchEvent(
+          new KeyboardEvent(
+              `keydown`,
+              {
+                keyCode: 27
+              }
+          )
+      );
+    }
 
-  render(tripDayListBlock, _RouteDay.getElement());
+    Utils.replaceElement(waypoint, waypointEdit);
 
-  const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
+    closeWaypointEditEscHandler = (evt) => {
+      if (evt.keyCode === KEYCODES.ESC || evt.which === KEYCODES.ESC) {
+        closeWaypointEdit(waypoint, waypointEdit);
+      }
+    };
 
-  _RouteDay.waypoints.forEach((waypoint) => {
-    const _Waypoint = new Waypoint(waypoint);
-    const _WaypoinEdit = new WaypointEdit(waypoint);
+    document.addEventListener(`keydown`, closeWaypointEditEscHandler);
+  };
 
-    const openWaypointEditOpenButton = _Waypoint.getElement().querySelector(`.event__rollup-btn`);
-    const openWaypointEditSubmitButton = _WaypoinEdit.getElement().querySelector(`form`);
-    const openWaypointEditCancelButton = _WaypoinEdit.getElement().querySelector(`.event__reset-btn`);
+  const closeWaypointEdit = (waypoint, waypointEdit) => {
+    Utils.replaceElement(waypointEdit, waypoint);
 
-    openWaypointEditOpenButton.addEventListener(`click`, () => {
-      Utils.replaceElement(_Waypoint.getElement(), _WaypoinEdit.getElement());
+    document.removeEventListener(`keydown`, closeWaypointEditEscHandler);
+  };
+
+  render(tripEventsBlock, _Sort.getElement());
+  render(tripEventsBlock, _RouteTrip.getElement());
+
+  const tripDayListBlock = tripEventsBlock.querySelector(`.trip-days`);
+  const dayList = (_RouteTrip.fetchDayList());
+
+  dayList.forEach((day) => {
+    const _RouteDay = new RouteDay(day);
+
+    render(tripDayListBlock, _RouteDay.getElement());
+
+    const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
+
+    _RouteDay.waypoints.forEach((waypoint) => {
+      const _Waypoint = new Waypoint(waypoint);
+      const _WaypointEdit = new WaypointEdit(waypoint);
+
+      const openWaypointEditOpenButton = _Waypoint.getElement().querySelector(`.event__rollup-btn`);
+      const closeWaypointEditSubmitButton = _WaypointEdit.getElement().querySelector(`form`);
+      const closeWaypointEditCancelButton = _WaypointEdit.getElement().querySelector(`.event__reset-btn`);
+
+      openWaypointEditOpenButton.addEventListener(`click`, () => {
+        openWaypointEdit(_Waypoint.getElement(), _WaypointEdit.getElement());
+      });
+
+      closeWaypointEditSubmitButton.addEventListener(`submit`, () => {
+        closeWaypointEdit(_Waypoint.getElement(), _WaypointEdit.getElement());
+      });
+
+      closeWaypointEditCancelButton.addEventListener(`click`, () => {
+        closeWaypointEdit(_Waypoint.getElement(), _WaypointEdit.getElement());
+      });
+
+      tripWaypointsBlock.appendChild(_Waypoint.getElement());
     });
-
-    openWaypointEditSubmitButton.addEventListener(`submit`, () => {
-      Utils.replaceElement(_WaypoinEdit.getElement(), _Waypoint.getElement());
-    });
-
-    openWaypointEditCancelButton.addEventListener(`click`, () => {
-      Utils.replaceElement(_WaypoinEdit.getElement(), _Waypoint.getElement());
-    });
-
-    tripWaypointsBlock.appendChild(_Waypoint.getElement());
   });
-});
+} else {
+  const noWaypointsMessageTemplate = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
+
+  render(tripEventsBlock, Utils.createElement(noWaypointsMessageTemplate));
+}

@@ -69,13 +69,14 @@ const getRouteCost = (waypoints) => {
 };
 
 const getRouteMarkup = (waypoints) => {
-  const route = fetchRouteInfo(waypoints);
+  const citiesMarkup = waypoints.length ? createCitiesMarkup(fetchRouteInfo(waypoints).cities) : ``;
+  const dateMarkup = waypoints.length ? createDateMarkup(fetchRouteInfo(waypoints).date) : ``;
 
   return (
     `<div class="trip-info__main">
-      <h1 class="trip-info__title">${createCitiesMarkup(route.cities)}</h1>
+      <h1 class="trip-info__title">${citiesMarkup}</h1>
 
-      <p class="trip-info__dates">${createDateMarkup(route.date)}</p>
+      <p class="trip-info__dates">${dateMarkup}</p>
     </div>`
   );
 };
