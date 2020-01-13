@@ -1,6 +1,6 @@
 import {MONTHS} from './const';
 
-export class Utils {
+export default class Utils {
   static getRandomNumber(min, max) {
     return min + Math.round(max * Math.random());
   }
@@ -64,6 +64,10 @@ export class Utils {
   static createElement(markup) {
     const element = document.createElement(`div`);
     element.innerHTML = markup;
-    return element;
+    return element.firstChild;
+  }
+
+  static replaceElement(oldElement, newElement) {
+    oldElement.parentNode.replaceChild(newElement, oldElement);
   }
 }

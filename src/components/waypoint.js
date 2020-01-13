@@ -1,8 +1,70 @@
-import {Utils} from '../utils';
-import {WaypointEdit} from './waypoint-edit';
+import Utils from '../utils';
 
-export class Waypoint {
-  constructor(type, city, time, price, offers, destination, photos) {
+const createOfferMarkup = (offer) => {
+  const {type, price} = offer;
+
+  return (
+    `<li class="event__offer">
+      <span class="event__offer-title">${type}</span>
+      &plus;
+      &euro;&nbsp;<span class="event__offer-price">${price}</span>
+    </li>`
+  );
+};
+
+const createOfferListMarkup = (offers) => {
+  let offersMarkup = ``;
+
+  offers.forEach((offer) => {
+    offersMarkup += createOfferMarkup(offer);
+  });
+
+  return (
+    `<ul class="event__selected-offers">
+      ${offersMarkup}
+    </ul>`
+  );
+};
+
+const createWaypointMarkup = (waypoint) => {
+  const {type, time, price, offers} = waypoint;
+
+  return (
+    `<li class="trip-events__item">
+      <div class="event">
+        <div class="event__type">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
+        </div>
+        <h3 class="event__title">${Utils.capitalizeFirstLetter(type)}</h3>
+
+        <div class="event__schedule">
+          <p class="event__time">
+            <time class="event__start-time" datetime="${time.start.DT}">${time.start.HM}</time>
+            &mdash;
+            <time class="event__end-time" datetime="${time.end.DT}">${time.end.HM}</time>
+          </p>
+          <p class="event__duration">${time.diff.formatted}</p>
+        </div>
+
+        <p class="event__price">
+          &euro;&nbsp;<span class="event__price-value">${price}</span>
+        </p>
+
+        <h4 class="visually-hidden">Offers:</h4>
+        ${createOfferListMarkup(offers)}
+
+        <button class="event__rollup-btn" type="button">
+          <span class="visually-hidden">Open event</span>
+        </button>
+      </div>
+    </li>`
+  );
+};
+
+export default class Waypoint {
+  constructor(waypoint) {
+    const {type, city, time, price, offers, destination, photos} = waypoint;
+
     this._type = type;
     this._city = city;
     this._time = time;
@@ -10,7 +72,7 @@ export class Waypoint {
     this._offers = offers;
     this._destination = destination;
     this._photos = photos;
-    this._edit = new WaypointEdit(this).getElement();
+    this._element = null;
   }
 
   get type() {
@@ -41,62 +103,8 @@ export class Waypoint {
     return this._photos;
   }
 
-  _createOfferMarkup(offer) {
-    const {type, price} = offer;
-    return (
-      `<li class="event__offer">
-        <span class="event__offer-title">${type}</span>
-        &plus;
-        &euro;&nbsp;<span class="event__offer-price">${price}</span>
-      </li>`
-    );
-  }
-
-  _createOfferListMarkup() {
-    let offersMarkup = ``;
-
-    this._offers.forEach((offer) => {
-      offersMarkup += this._createOfferMarkup(offer);
-    });
-
-    return (
-      `<ul class="event__selected-offers">
-        ${offersMarkup}
-      </ul>`
-    );
-  }
-
   getTemplate() {
-    return (
-      `<li class="trip-events__item">
-        <div class="event">
-          <div class="event__type">
-            <img class="event__type-icon" width="42" height="42" src="img/icons/${this._type}.png" alt="Event type icon">
-          </div>
-          <h3 class="event__title">${Utils.capitalizeFirstLetter(this._type)}</h3>
-
-          <div class="event__schedule">
-            <p class="event__time">
-              <time class="event__start-time" datetime="${this._time.start.DT}">${this._time.start.HM}</time>
-              &mdash;
-              <time class="event__end-time" datetime="${this._time.end.DT}">${this._time.end.HM}</time>
-            </p>
-            <p class="event__duration">${this._time.diff.formatted}</p>
-          </div>
-
-          <p class="event__price">
-            &euro;&nbsp;<span class="event__price-value">${this._price}</span>
-          </p>
-
-          <h4 class="visually-hidden">Offers:</h4>
-          ${this._createOfferListMarkup(this._offers)}
-
-          <button class="event__rollup-btn" type="button">
-            <span class="visually-hidden">Open event</span>
-          </button>
-        </div>
-      </li>`
-    );
+    return createWaypointMarkup(this);
   }
 
   getElement() {

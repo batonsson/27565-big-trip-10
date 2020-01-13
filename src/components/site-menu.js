@@ -1,30 +1,35 @@
-import {Utils} from '../utils';
+import Utils from '../utils';
 
-export class Menu {
+const createMenuElementMarkup = (element) => {
+  const {value, isActive} = element;
+
+  return (
+    `<a class="trip-tabs__btn  ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${value}</a>`
+  );
+};
+
+const createMenuListMarkup = (menuList) => {
+  let menuListMarkup = ``;
+
+  menuList.forEach((menuListElement) => {
+    menuListMarkup += createMenuElementMarkup(menuListElement);
+  });
+
+  return (
+    `<nav class="trip-controls__trip-tabs  trip-tabs">
+      ${menuListMarkup}
+    </nav>`
+  );
+};
+
+export default class Menu {
   constructor(menuList) {
     this._menuList = menuList;
-  }
-
-  _createMenuElementMarkup(element) {
-    const {value, isActive} = element;
-
-    return (
-      `<a class="trip-tabs__btn  ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${value}</a>`
-    );
+    this._element = null;
   }
 
   getTemplate() {
-    let menuListMarkup = ``;
-
-    this._menuList.forEach((menuListElement) => {
-      menuListMarkup += this._createMenuElementMarkup(menuListElement);
-    });
-
-    return (
-      `<nav class="trip-controls__trip-tabs  trip-tabs">
-        ${menuListMarkup}
-      </nav>`
-    );
+    return createMenuListMarkup(this._menuList);
   }
 
   getElement() {
