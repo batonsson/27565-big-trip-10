@@ -1,4 +1,4 @@
-export const menu = [
+export const menuList = [
   {
     value: `Table`,
     isActive: true

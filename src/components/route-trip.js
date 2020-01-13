@@ -1,4 +1,4 @@
-import {createWaypoints} from './waypoint';
+import Utils from '../utils';
 
 const checkDayExists = (dayGiven, dayList) => {
   const check = {
@@ -19,59 +19,54 @@ const checkDayExists = (dayGiven, dayList) => {
   return check;
 };
 
-const fetchDayList = (waypoints) => {
-  const dayList = [];
+const createRouteMarkup = () => {
+  return (
+    `<ul class="trip-days"><ul>`
+  );
+};
 
-  waypoints.forEach((waypoint) => {
-    const {exists, index} = checkDayExists(waypoint, dayList);
+export default class RouteTrip {
+  constructor(waypoints) {
+    this._waypoints = waypoints;
+    this._element = null;
+  }
 
-    if (exists) {
-      dayList[index].waypoints.push(waypoint);
-    } else {
-      dayList.push({
-        date: {
-          raw: waypoint.time.start.raw,
-          formatted: waypoint.time.start.MD
-        },
-        waypoints: [waypoint]
-      });
+  fetchDayList() {
+    const dayList = [];
+
+    this._waypoints.forEach((waypoint) => {
+      const {exists, index} = checkDayExists(waypoint, dayList);
+
+      if (exists) {
+        dayList[index].waypoints.push(waypoint);
+      } else {
+        dayList.push({
+          date: {
+            raw: waypoint.time.start.raw,
+            formatted: waypoint.time.start.MD
+          },
+          waypoints: [waypoint],
+          index: dayList.length + 1
+        });
+      }
+    });
+
+    return dayList;
+  }
+
+  getTemplate() {
+    return createRouteMarkup(this._waypoints);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = Utils.createElement(this.getTemplate());
     }
-  });
 
-  return dayList;
-};
+    return this._element;
+  }
 
-const createRouteDayMarkup = (day, dayNumber) => {
-  const {date, waypoints} = day;
-
-  return (
-    `<li class="trip-days__item  day">
-      <div class="day__info">
-        <span class="day__counter">${dayNumber}</span>
-        <time class="day__date" datetime="2019-03-18">${date.formatted}</time>
-      </div>
-
-      <ul class="trip-events__list">
-        ${createWaypoints(waypoints)}
-      </ul>
-    </li>`
-  );
-};
-
-export const createRouteListMarkup = (waypoints) => {
-  const dayList = fetchDayList(waypoints).sort((a, b) => {
-    return a.date.raw > b.date.raw ? 1 : -1;
-  });
-
-  let dayListMarkup = ``;
-
-  dayList.forEach((day, index) => {
-    dayListMarkup += createRouteDayMarkup(day, index + 1);
-  });
-
-  return (
-    `<ul class="trip-days">
-      ${dayListMarkup}
-    <ul>`
-  );
-};
+  removeElement() {
+    this._element = null;
+  }
+}
