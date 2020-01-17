@@ -22,7 +22,7 @@ const checkDayExists = (dayGiven, dayList) => {
 
 const createRouteMarkup = () => {
   return (
-    `<ul class="trip-days"><ul>`
+    `<ul class="trip-days"></ul>`
   );
 };
 

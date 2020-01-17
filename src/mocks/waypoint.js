@@ -16,6 +16,7 @@ const getCity = () => {
 };
 
 const getTimeDiff = (start, end) => {
+  const raw = end - start;
   const MS_DAY = 1000 * 60 * 60 * 24;
   const minutesOverlap = end.getMinutes() > start.getMinutes(); // if false hour diff must be less by 1
   let days = Math.floor((end - start) / MS_DAY);
@@ -42,6 +43,7 @@ const getTimeDiff = (start, end) => {
   const formatted = `${days ? days + `D` : `` } ${hours ? hours + `H` : `` } ${minutes ? minutes + `M` : `` }`.trim();
 
   return {
+    raw,
     days,
     hours,
     minutes,
