@@ -8,8 +8,8 @@ const createSortOptionsMarkup = (options) => {
     const {value, hasIcon, isActive} = option;
 
     sortOptionsMarkup += `<div class="trip-sort__item  trip-sort__item--${value}">
-                            <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${value}" ${isActive ? `checked` : ``}>
-                            <label class="trip-sort__btn" for="sort-${value}">
+                            <input id="sort-${value}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${value}" ${isActive ? `checked` : ``}>
+                            <label class="trip-sort__btn" for="sort-${value}" data-sort-type="${value}">
                               ${Utils.capitalizeFirstLetter(value)}
                               ${hasIcon ? `
                                 <svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
@@ -34,12 +34,34 @@ const createSortFormMarkup = (options) => {
   );
 };
 
+const handleSortClick = (evt, contextSort, callback, contextTripController) => {
+  const newSort = evt.target.dataset.sortType;
+
+  if (newSort === contextSort._activeSortType) {
+    return;
+  } else {
+    contextSort._activeSortType = newSort;
+    callback.call(contextTripController, contextSort._activeSortType);
+  }
+};
+
 export default class Sort extends AbstractComponent {
   constructor(options) {
     super();
 
     this._options = options;
+    this._activeSortType = options.filter((option) => option.isActive)[0].value;
     this._element = null;
+  }
+
+  get activeSortType() {
+    return this._activeSortType;
+  }
+
+  setOnSortClickHandler(sortButton, onSortTypeChangeHandler, contextTripController) {
+    sortButton.addEventListener(`click`, (evt) => {
+      handleSortClick(evt, this, onSortTypeChangeHandler, contextTripController);
+    });
   }
 
   getTemplate() {

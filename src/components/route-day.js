@@ -1,12 +1,15 @@
 import Utils from '../utils';
 import AbstractComponent from './abstract-component';
 
-const createRouteDayMarkup = (date, dayNumber) => {
+const createRouteDayMarkup = (date, dayNumber, isDateVisible) => {
   return (
     `<li class="trip-days__item  day">
       <div class="day__info">
-        <span class="day__counter">${dayNumber}</span>
-        <time class="day__date" datetime="2019-03-18">${date.formatted}</time>
+        ${isDateVisible
+      ?
+      `<span class="day__counter">${dayNumber}</span>
+      <time class="day__date" datetime="2019-03-18">${date.formatted}</time>`
+      : ``}
       </div>
 
       <ul class="trip-events__list"></ul>
@@ -15,7 +18,7 @@ const createRouteDayMarkup = (date, dayNumber) => {
 };
 
 export default class RouteDay extends AbstractComponent {
-  constructor(day) {
+  constructor(day, isDateVisible) {
     super();
 
     const {date, waypoints, index} = day;
@@ -23,6 +26,7 @@ export default class RouteDay extends AbstractComponent {
     this._date = date;
     this._waypoints = waypoints;
     this._index = index;
+    this._isDateVisible = isDateVisible;
   }
 
   get waypoints() {
@@ -30,7 +34,7 @@ export default class RouteDay extends AbstractComponent {
   }
 
   getTemplate() {
-    return createRouteDayMarkup(this._date, this._index);
+    return createRouteDayMarkup(this._date, this._index, this._isDateVisible);
   }
 
   getElement() {

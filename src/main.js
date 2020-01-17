@@ -1,12 +1,10 @@
 import {menuList} from './mocks/site-menu';
 import {filterOptions} from './mocks/filters';
-import {sortOptions} from './mocks/sort';
 import {createWaypoint} from './mocks/waypoint';
 
 import RouteInfo from './components/route-info';
 import Menu from './components/site-menu';
 import Filters from './components/filters';
-import Sort from './components/sort';
 import TripController from './components/TripController';
 import Utils from './utils';
 import {render} from './render';
@@ -37,11 +35,9 @@ render(tripControlsBlock, _Menu);
 render(tripControlsBlock, _Filters);
 
 if (waypoints.length) {
-  const _Sort = new Sort(sortOptions);
-  const _TripController = new TripController(tripEventsBlock);
+  const _TripController = new TripController(waypoints, tripEventsBlock);
 
-  render(tripEventsBlock, _Sort);
-  _TripController.renderWaypoints(waypoints);
+  _TripController.init();
 } else {
   const noWaypointsMessageTemplate = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
 
