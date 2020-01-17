@@ -1,4 +1,5 @@
 import Utils from '../utils';
+import AbstractComponent from './abstract-component';
 
 const createMenuElementMarkup = (element) => {
   const {value, isActive} = element;
@@ -22,8 +23,10 @@ const createMenuListMarkup = (menuList) => {
   );
 };
 
-export default class Menu {
+export default class Menu extends AbstractComponent {
   constructor(menuList) {
+    super();
+
     this._menuList = menuList;
     this._element = null;
   }

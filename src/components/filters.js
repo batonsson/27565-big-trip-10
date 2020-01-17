@@ -1,4 +1,5 @@
 import Utils from '../utils';
+import AbstractComponent from './abstract-component';
 
 const createFilterMarkup = (filter) => {
   const {value, type, isActive} = filter;
@@ -26,8 +27,10 @@ const createFilterListMarkup = (filterList) => {
   );
 };
 
-export default class Filters {
+export default class Filters extends AbstractComponent {
   constructor(filterList) {
+    super();
+
     this._filterList = filterList;
     this._element = null;
   }

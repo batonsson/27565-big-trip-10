@@ -1,4 +1,5 @@
 import Utils from '../utils';
+import AbstractComponent from './abstract-component';
 
 const fetchRouteCities = (waypoints) => {
   const cities = [];
@@ -81,8 +82,10 @@ const getRouteMarkup = (waypoints) => {
   );
 };
 
-export default class RouteInfo {
+export default class RouteInfo extends AbstractComponent {
   constructor(waypoints) {
+    super();
+
     this._waypoints = waypoints;
     this._cost = getRouteCost(this._waypoints);
     this._element = null;

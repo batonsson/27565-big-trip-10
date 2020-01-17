@@ -1,5 +1,6 @@
 import {TYPES, CITIES, OFFERS} from '../const';
 import Utils from '../utils';
+import AbstractComponent from './abstract-component';
 
 const createTypeOptionMarkup = (type) => {
   return (
@@ -168,8 +169,16 @@ const getWaypointEditMarkup = (waypoint) => {
   );
 };
 
-export default class WaypointEdit {
+const closeWaypointEdit = (waypoint, waypointEdit) => {
+  Utils.replaceElement(waypointEdit, waypoint);
+
+  document.removeEventListener(`keydown`, window.__ON_ESC_CLOSE_HANDLER__);
+};
+
+export default class WaypointEdit extends AbstractComponent {
   constructor(waypoint) {
+    super();
+
     const {type, city, time, price, offers, destination, photos} = waypoint;
 
     this._type = type;
@@ -179,7 +188,6 @@ export default class WaypointEdit {
     this._offers = offers;
     this._destination = destination;
     this._photos = photos;
-    this._element = null;
   }
 
   get type() {
@@ -210,19 +218,17 @@ export default class WaypointEdit {
     return this._photos;
   }
 
+  setCloseWaypointHandlers(waypoint, waypointEdit) {
+    this.getElement().querySelector(`form`).addEventListener(`submit`, () => {
+      closeWaypointEdit(waypoint.getElement(), waypointEdit.getElement());
+    });
+
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, () => {
+      closeWaypointEdit(waypoint.getElement(), waypointEdit.getElement());
+    });
+  }
+
   getTemplate() {
     return getWaypointEditMarkup(this);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = Utils.createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

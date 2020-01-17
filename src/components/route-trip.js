@@ -1,4 +1,5 @@
 import Utils from '../utils';
+import AbstractComponent from './abstract-component';
 
 const checkDayExists = (dayGiven, dayList) => {
   const check = {
@@ -25,8 +26,10 @@ const createRouteMarkup = () => {
   );
 };
 
-export default class RouteTrip {
+export default class RouteTrip extends AbstractComponent {
   constructor(waypoints) {
+    super();
+
     this._waypoints = waypoints;
     this._element = null;
   }
