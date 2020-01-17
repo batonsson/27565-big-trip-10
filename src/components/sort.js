@@ -1,4 +1,5 @@
 import Utils from '../utils';
+import AbstractComponent from './abstract-component';
 
 const createSortOptionsMarkup = (options) => {
   let sortOptionsMarkup = ``;
@@ -33,25 +34,15 @@ const createSortFormMarkup = (options) => {
   );
 };
 
-export default class Sort {
+export default class Sort extends AbstractComponent {
   constructor(options) {
+    super();
+
     this._options = options;
     this._element = null;
   }
 
   getTemplate() {
     return createSortFormMarkup(this._options);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = Utils.createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

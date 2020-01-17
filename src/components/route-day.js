@@ -1,4 +1,5 @@
 import Utils from '../utils';
+import AbstractComponent from './abstract-component';
 
 const createRouteDayMarkup = (date, dayNumber) => {
   return (
@@ -13,8 +14,10 @@ const createRouteDayMarkup = (date, dayNumber) => {
   );
 };
 
-export default class RouteDay {
+export default class RouteDay extends AbstractComponent {
   constructor(day) {
+    super();
+
     const {date, waypoints, index} = day;
 
     this._date = date;
