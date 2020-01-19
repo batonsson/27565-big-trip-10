@@ -3,7 +3,7 @@ import {sortOptions} from '../mocks/sort';
 import RouteTrip from './route-trip';
 import RouteDay from './route-day';
 import Sort from './sort';
-import PointController from './PointController';
+import PointController, {Mode as PointControllerMode} from './PointController';
 
 import {render} from '../render';
 
@@ -31,9 +31,11 @@ export default class TripController {
   constructor(waypoints, container) {
     this._waypoints = waypoints;
     this._container = container;
+    this._PointControllers = [];
 
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
     this._sortClickHandler = this._sortClickHandler.bind(this);
+    this._viewChangeHandler = this._viewChangeHandler.bind(this);
   }
 
   set RouteTrip(_RouteTrip) {
@@ -45,11 +47,17 @@ export default class TripController {
 
     this._waypoints[this._waypoints.indexOf(oldData)] = newData;
 
-    _PointController.render(newData);
+    _PointController.render(newData, PointControllerMode.DEFAULT);
   }
 
   _sortClickHandler(sortType) {
     this.renderWaypoints(sortType);
+  }
+
+  _viewChangeHandler() {
+    this._PointControllers.forEach((pointController) => {
+      pointController.setDefaultView();
+    });
   }
 
   renderWaypoints(sortType) {
@@ -81,9 +89,11 @@ export default class TripController {
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
 
       _RouteDay.waypoints.forEach((waypoint) => {
-        const _PointController = new PointController(tripWaypointsBlock, this._dataChangeHandler);
+        const _PointController = new PointController(tripWaypointsBlock, this._dataChangeHandler, this._viewChangeHandler);
 
-        _PointController.render(waypoint);
+        this._PointControllers.push(_PointController);
+
+        _PointController.render(waypoint, PointControllerMode.DEFAULT);
       });
     });
   }
