@@ -66,8 +66,9 @@ export default class Waypoint extends AbstractComponent {
   constructor(waypoint) {
     super();
 
-    const {type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
+    const {id, type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
 
+    this._id = id;
     this._type = type;
     this._city = city;
     this._time = time;
@@ -76,6 +77,10 @@ export default class Waypoint extends AbstractComponent {
     this._destination = destination;
     this._photos = photos;
     this._isFavorite = isFavorite;
+  }
+
+  get id() {
+    return this._id;
   }
 
   get type() {

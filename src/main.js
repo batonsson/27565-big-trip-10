@@ -1,10 +1,10 @@
 import {menuList} from './mocks/site-menu';
-import {filterOptions} from './mocks/filters';
 import {createWaypoint} from './mocks/waypoint';
 
 import RouteInfo from './components/route-info';
 import Menu from './components/site-menu';
-import Filters from './components/filters';
+import Waypoints from './models/waypoints';
+import FilterController from './controllers/FilterController';
 import TripController from './components/TripController';
 import Utils from './utils';
 import {render} from './render';
@@ -14,12 +14,11 @@ const WAYPOINTS_NUMBER = 10;
 const waypoints = [];
 
 for (let i = 0; i < WAYPOINTS_NUMBER; i++) {
-  waypoints.push(createWaypoint());
+  waypoints.push(createWaypoint(i));
 }
 
 const _RouteInfo = new RouteInfo(waypoints);
 const _Menu = new Menu(menuList);
-const _Filters = new Filters(filterOptions);
 
 const tripMainBlock = document.querySelector(`.trip-main`);
 const tripEventsBlock = document.querySelector(`.trip-events`);
@@ -32,10 +31,14 @@ tripCostValue.textContent = _RouteInfo.cost;
 
 render(tripRouteInfoBlock, _RouteInfo, tripCost);
 render(tripControlsBlock, _Menu);
-render(tripControlsBlock, _Filters);
 
 if (waypoints.length) {
-  const _TripController = new TripController(waypoints, tripEventsBlock);
+  const _Waypoints = new Waypoints(waypoints);
+
+  const _FilterController = new FilterController(_Waypoints, tripControlsBlock);
+  _FilterController.render();
+
+  const _TripController = new TripController(_Waypoints, tripEventsBlock);
 
   _TripController.init();
 } else {

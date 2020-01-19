@@ -103,3 +103,9 @@ export const OFFERS = [
     price: 40
   }
 ];
+
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};

@@ -28,21 +28,23 @@ const sortWaypoints = (waypoints, sortType) => {
 };
 
 export default class TripController {
-  constructor(waypoints, container) {
-    this._waypoints = waypoints;
+  constructor(Waypoints, container) {
+    this._Waypoints = Waypoints;
     this._container = container;
+    this._Sort = null;
+    this._RouteTrip = null;
     this._PointControllers = [];
 
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
     this._sortClickHandler = this._sortClickHandler.bind(this);
     this._viewChangeHandler = this._viewChangeHandler.bind(this);
+    this._filterChangeHandler = this._filterChangeHandler.bind(this);
   }
 
   _dataChangeHandler(_PointController, oldData, newData) {
+    this._Waypoints.updateWaypoint(oldData.id, newData);
+
     _PointController.destroy();
-
-    this._waypoints[this._waypoints.indexOf(oldData)] = newData;
-
     _PointController.render(newData, PointControllerMode.DEFAULT);
   }
 
@@ -54,6 +56,10 @@ export default class TripController {
     this._PointControllers.forEach((pointController) => {
       pointController.setDefaultView();
     });
+  }
+
+  _filterChangeHandler() {
+    this.renderWaypoints(this._Sort.activeSortType);
   }
 
   set RouteTrip(_RouteTrip) {
@@ -69,13 +75,13 @@ export default class TripController {
 
     switch (sortType) {
       case `event`:
-        dayList = this._RouteTrip.fetchDayList();
+        dayList = this._RouteTrip.fetchDayList(this._Waypoints.getWaypoints());
         break;
       default:
         dayList = [
           {
             date: null,
-            waypoints: sortWaypoints(this._waypoints.slice(), sortType),
+            waypoints: sortWaypoints(this._Waypoints.getWaypoints(), sortType),
             index: null
           }
         ];
@@ -99,20 +105,20 @@ export default class TripController {
   }
 
   init() {
-    const _Sort = new Sort(sortOptions);
-    const _RouteTrip = new RouteTrip(this._waypoints);
+    this._Sort = new Sort(sortOptions);
+    this._RouteTrip = new RouteTrip(this._Waypoints.getWaypoints());
 
-    this.RouteTrip = _RouteTrip;
+    render(this._container, this._Sort);
+    render(this._container, this._RouteTrip);
 
-    render(this._container, _Sort);
-    render(this._container, _RouteTrip);
+    this._Waypoints.filterChangeHandler(this._filterChangeHandler);
 
     const sortButtons = document.querySelectorAll(`.trip-sort__btn`);
 
     sortButtons.forEach((sortButton) => {
-      _Sort.setSortClickHandler(sortButton, this._sortClickHandler);
+      this._Sort.setSortClickHandler(sortButton, this._sortClickHandler);
     });
 
-    this.renderWaypoints(_Sort.activeSortType);
+    this.renderWaypoints(this._Sort.activeSortType);
   }
 }

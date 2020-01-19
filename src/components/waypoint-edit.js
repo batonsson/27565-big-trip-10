@@ -189,8 +189,9 @@ export default class WaypointEdit extends AbstractSmartComponent {
   constructor(waypoint) {
     super();
 
-    const {type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
+    const {id, type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
 
+    this._id = id;
     this._type = type;
     this._city = city;
     this._time = time;
@@ -239,6 +240,10 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._flatpickrFrom = flatpickr(inputFrom, paramsFrom);
 
     this._flatpickrTo = flatpickr(inputTo, paramsTo);
+  }
+
+  get id() {
+    return this._type;
   }
 
   get type() {
@@ -310,5 +315,19 @@ export default class WaypointEdit extends AbstractSmartComponent {
 
   getTemplate() {
     return getWaypointEditMarkup(this);
+  }
+
+  removeElement() {
+    if (this._flatpickrFrom) {
+      this._flatpickrFrom.destroy();
+      this._flatpickrFrom = null;
+    }
+
+    if (this._flatpickrTo) {
+      this._flatpickrTo.destroy();
+      this._flatpickrTo = null;
+    }
+
+    super.removeElement();
   }
 }

@@ -35,6 +35,10 @@ export default class Filters extends AbstractComponent {
     this._element = null;
   }
 
+  setFilterChangeHandler(filterChangeHandler) {
+    this.getElement().addEventListener(`change`, filterChangeHandler);
+  }
+
   getTemplate() {
     return (createFilterListMarkup(this._filterList));
   }
