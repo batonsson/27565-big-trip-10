@@ -246,15 +246,22 @@ export default class WaypointEdit extends AbstractSmartComponent {
   }
 
   setChangeEventTypeHandler(changeEventTypeHandler) {
-    this.getElement().querySelector(`.event--edit`).addEventListener(`change`, changeEventTypeHandler);
+    this.getElement().querySelector(`.event__type-list`).addEventListener(`change`, changeEventTypeHandler);
 
     this._changeEventTypeHandler = changeEventTypeHandler;
+  }
+
+  setChangeEventCityHandler(changeEventCityHandler) {
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, changeEventCityHandler);
+
+    this._changeEventCityHandler = changeEventCityHandler;
   }
 
   recoveryListeners() {
     this.setCloseWaypointHandlers(this._closeWaypointEditHandler);
     this.setAddToFavoritesHandler(this._dataChangeHandler);
     this.setChangeEventTypeHandler(this._changeEventTypeHandler);
+    this.setChangeEventCityHandler(this._changeEventCityHandler);
   }
 
   getTemplate() {

@@ -18,11 +18,11 @@ export default class PointController {
   _openWaypointEditHandler() {
     document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
 
-    Utils.replaceElement(this._Waypoint, this._WaypointEdit);
+    Utils.replaceElement(this._Waypoint.getElement(), this._WaypointEdit.getElement());
 
     this._closeWaypointEditEscHandler = (evt) => {
       if (evt.keyCode === KEYCODES.ESC || evt.which === KEYCODES.ESC) {
-        Utils.replaceElement(this._WaypointEdit, this._Waypoint);
+        Utils.replaceElement(this._WaypointEdit.getElement(), this._Waypoint.getElement());
       }
 
       document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
@@ -32,7 +32,7 @@ export default class PointController {
   }
 
   _closeWaypointEditHandler() {
-    Utils.replaceElement(this._WaypointEdit, this._Waypoint);
+    Utils.replaceElement(this._WaypointEdit.getElement(), this._Waypoint.getElement());
 
     document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
 
@@ -57,6 +57,18 @@ export default class PointController {
       newWaypoint.isFavorite = !newWaypoint.isFavorite;
 
       this._dataChangeHandler(this, waypoint, newWaypoint);
+    });
+
+    this._WaypointEdit.setChangeEventTypeHandler((evt) => {
+      const newWaypoint = Object.assign({}, waypoint);
+
+      newWaypoint.type = evt.target.value;
+
+      this._dataChangeHandler(this, waypoint, newWaypoint);
+    });
+
+    this._WaypointEdit.setChangeEventCityHandler(() => {
+
     });
 
     this._container.appendChild(this._Waypoint.getElement());

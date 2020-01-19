@@ -68,14 +68,6 @@ export default class Utils {
   }
 
   static replaceElement(oldElement, newElement) {
-    if (typeof oldElement.getElement === `function`) {
-      oldElement = oldElement.getElement();
-    }
-
-    if (typeof newElement.getElement === `function`) {
-      newElement = newElement.getElement();
-    }
-
     oldElement.parentNode.replaceChild(newElement, oldElement);
   }
 }
