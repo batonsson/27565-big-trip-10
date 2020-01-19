@@ -3,34 +3,26 @@ import {KEYCODES} from '../const';
 import Waypoint from './waypoint';
 import WaypointEdit from './waypoint-edit';
 import Utils from '../utils';
+import {remove} from '../render';
 
 export default class PointController {
-  constructor(container) {
+  constructor(container, dataChangeHandler) {
     this._container = container;
+    this._dataChangeHandler = dataChangeHandler;
     this._closeWaypointEditEscHandler = null;
+
+    this._openWaypointEditHandler = this._openWaypointEditHandler.bind(this);
+    this._closeWaypointEditHandler = this._closeWaypointEditHandler.bind(this);
   }
 
   _openWaypointEditHandler() {
-    const waypointElement = this._Waypoint.getElement();
-    const waypointEditElement = this._WaypointEdit.getElement();
+    document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
 
-    // close open waypoint edit form
-    if (document.querySelector(`.event--edit`)) {
-      document.dispatchEvent(
-          new KeyboardEvent(
-              `keydown`,
-              {
-                keyCode: KEYCODES.ESC
-              }
-          )
-      );
-    }
-
-    Utils.replaceElement(waypointElement, waypointEditElement);
+    Utils.replaceElement(this._Waypoint, this._WaypointEdit);
 
     this._closeWaypointEditEscHandler = (evt) => {
       if (evt.keyCode === KEYCODES.ESC || evt.which === KEYCODES.ESC) {
-        Utils.replaceElement(waypointEditElement, waypointElement);
+        Utils.replaceElement(this._WaypointEdit, this._Waypoint);
       }
 
       document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
@@ -40,10 +32,7 @@ export default class PointController {
   }
 
   _closeWaypointEditHandler() {
-    const waypointElement = this._Waypoint.getElement();
-    const waypointEditElement = this._WaypointEdit.getElement();
-
-    Utils.replaceElement(waypointEditElement, waypointElement);
+    Utils.replaceElement(this._WaypointEdit, this._Waypoint);
 
     document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
 
@@ -62,6 +51,20 @@ export default class PointController {
       this._closeWaypointEditHandler();
     });
 
+    this._WaypointEdit.setAddToFavoritesHandler(() => {
+      const newWaypoint = Object.assign({}, waypoint);
+
+      newWaypoint.isFavorite = !newWaypoint.isFavorite;
+
+      this._dataChangeHandler(this, waypoint, newWaypoint);
+    });
+
     this._container.appendChild(this._Waypoint.getElement());
+  }
+
+  destroy() {
+    remove(this._Waypoint);
+    remove(this._WaypointEdit);
+    document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
   }
 }

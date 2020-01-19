@@ -5,3 +5,12 @@ export const render = (container, element, before) => {
     container.insertBefore(element, before);
   }
 };
+
+export const remove = (element) => {
+  if (typeof element.getElement === `function`) {
+    element.getElement().remove();
+    element.removeElement();
+  } else {
+    element.remove();
+  }
+};

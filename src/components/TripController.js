@@ -31,15 +31,25 @@ export default class TripController {
   constructor(waypoints, container) {
     this._waypoints = waypoints;
     this._container = container;
+
+    this._dataChangeHandler = this._dataChangeHandler.bind(this);
+    this._sortClickHandler = this._sortClickHandler.bind(this);
   }
 
   set RouteTrip(_RouteTrip) {
     this._RouteTrip = _RouteTrip;
   }
 
-  _dataChangeHandler(_PointController, newWaypoint) {
-    newWaypoint.removeElement();
-    _PointController.render(newWaypoint);
+  _dataChangeHandler(_PointController, oldData, newData) {
+    _PointController.destroy();
+
+    this._waypoints[this._waypoints.indexOf(oldData)] = newData;
+
+    _PointController.render(newData);
+  }
+
+  _sortClickHandler(sortType) {
+    this.renderWaypoints(sortType);
   }
 
   renderWaypoints(sortType) {
@@ -64,14 +74,14 @@ export default class TripController {
     }
 
     dayList.forEach((day) => {
-      const _RouteDay = new RouteDay(day, sortType === `event`);
+      const _RouteDay = new RouteDay(day);
 
       render(tripDayListBlock, _RouteDay);
 
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
 
       _RouteDay.waypoints.forEach((waypoint) => {
-        const _PointController = new PointController(tripWaypointsBlock);
+        const _PointController = new PointController(tripWaypointsBlock, this._dataChangeHandler);
 
         _PointController.render(waypoint);
       });
@@ -90,7 +100,7 @@ export default class TripController {
     const sortButtons = document.querySelectorAll(`.trip-sort__btn`);
 
     sortButtons.forEach((sortButton) => {
-      _Sort.setOnSortClickHandler(sortButton, this.renderWaypoints, this);
+      _Sort.setSortClickHandler(sortButton, this._sortClickHandler);
     });
 
     this.renderWaypoints(_Sort.activeSortType);

@@ -225,6 +225,10 @@ export default class WaypointEdit extends AbstractSmartComponent {
     return this._photos;
   }
 
+  get isFavorite() {
+    return this._isFavorite;
+  }
+
   setCloseWaypointEditHandlers(closeWaypointEditHandler) {
     this.getElement().querySelector(`form`).addEventListener(`submit`, closeWaypointEditHandler);
 
@@ -235,26 +239,21 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._closeWaypointEditHandler = closeWaypointEditHandler;
   }
 
-  setAddToFavoritesHandler(_PointController, dataChangeHandler) {
-    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, () => {
-      this._isFavorite = !this._isFavorite;
-      dataChangeHandler(_PointController, this);
-    });
+  setAddToFavoritesHandler(dataChangeHandler) {
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, dataChangeHandler);
 
-    this._PointController = _PointController;
     this._dataChangeHandler = dataChangeHandler;
   }
 
   setChangeEventTypeHandler(changeEventTypeHandler) {
-    this.getElement().querySelector(`.event--edit`).addEventListener(`change`, () => {
-      changeEventTypeHandler();
+    this.getElement().querySelector(`.event--edit`).addEventListener(`change`, changeEventTypeHandler);
 
-      this._changeEventTypeHandler = changeEventTypeHandler;
-    });
+    this._changeEventTypeHandler = changeEventTypeHandler;
   }
 
   recoveryListeners() {
     this.setCloseWaypointHandlers(this._closeWaypointEditHandler);
+    this.setAddToFavoritesHandler(this._dataChangeHandler);
     this.setChangeEventTypeHandler(this._changeEventTypeHandler);
   }
 

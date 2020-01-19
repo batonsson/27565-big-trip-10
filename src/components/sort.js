@@ -34,17 +34,6 @@ const createSortFormMarkup = (options) => {
   );
 };
 
-const handleSortClick = (evt, contextSort, callback, contextTripController) => {
-  const newSort = evt.target.dataset.sortType;
-
-  if (newSort === contextSort._activeSortType) {
-    return;
-  } else {
-    contextSort._activeSortType = newSort;
-    callback.call(contextTripController, contextSort._activeSortType);
-  }
-};
-
 export default class Sort extends AbstractComponent {
   constructor(options) {
     super();
@@ -58,9 +47,14 @@ export default class Sort extends AbstractComponent {
     return this._activeSortType;
   }
 
-  setOnSortClickHandler(sortButton, onSortTypeChangeHandler, contextTripController) {
-    sortButton.addEventListener(`click`, (evt) => {
-      handleSortClick(evt, this, onSortTypeChangeHandler, contextTripController);
+  setSortClickHandler(sortButton, sortClickHandler) {
+    sortButton.addEventListener(`click`, () => {
+      if (this._activeSortType === sortButton.dataset.sortType) {
+        return;
+      } else {
+        this._activeSortType = sortButton.dataset.sortType;
+        sortClickHandler(this._activeSortType);
+      }
     });
   }
 
