@@ -3,8 +3,7 @@ import {sortOptions} from '../mocks/sort';
 import RouteTrip from './route-trip';
 import RouteDay from './route-day';
 import Sort from './sort';
-import Waypoint from './waypoint';
-import WaypointEdit from './waypoint-edit';
+import PointController from './PointController';
 
 import {render} from '../render';
 
@@ -38,6 +37,11 @@ export default class TripController {
     this._RouteTrip = _RouteTrip;
   }
 
+  _dataChangeHandler(_PointController, newWaypoint) {
+    newWaypoint.removeElement();
+    _PointController.render(newWaypoint);
+  }
+
   renderWaypoints(sortType) {
     const tripDayListBlock = this._container.querySelector(`.trip-days`);
 
@@ -67,13 +71,9 @@ export default class TripController {
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
 
       _RouteDay.waypoints.forEach((waypoint) => {
-        const _Waypoint = new Waypoint(waypoint);
-        const _WaypointEdit = new WaypointEdit(waypoint);
+        const _PointController = new PointController(tripWaypointsBlock);
 
-        _Waypoint.setOpenWaypointHandler(_Waypoint, _WaypointEdit);
-        _WaypointEdit.setCloseWaypointHandlers(_Waypoint, _WaypointEdit);
-
-        tripWaypointsBlock.appendChild(_Waypoint.getElement());
+        _PointController.render(waypoint);
       });
     });
   }

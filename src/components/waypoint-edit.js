@@ -1,6 +1,6 @@
 import {TYPES, CITIES, OFFERS} from '../const';
 import Utils from '../utils';
-import AbstractComponent from './abstract-component';
+import AbstractSmartComponent from './AbstractSmartComponent';
 
 const createTypeOptionMarkup = (type) => {
   return (
@@ -100,7 +100,7 @@ const createPhotoListMarkup = (photos) => {
 };
 
 const getWaypointEditMarkup = (waypoint) => {
-  const {type, city, time, price, offers, destination, photos} = waypoint;
+  const {type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
 
   return (
     `<li class="trip-events__item">
@@ -149,6 +149,18 @@ const getWaypointEditMarkup = (waypoint) => {
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
+
+          <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
+          <label class="event__favorite-btn" for="event-favorite-1">
+            <span class="visually-hidden">Add to favorite</span>
+            <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+              <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+            </svg>
+          </label>
+
+          <button class="event__rollup-btn" type="button">
+            <span class="visually-hidden">Open event</span>
+          </button>
         </header>
         <section class="event__details">
           <section class="event__section  event__section--offers">
@@ -169,17 +181,11 @@ const getWaypointEditMarkup = (waypoint) => {
   );
 };
 
-const closeWaypointEdit = (waypoint, waypointEdit) => {
-  Utils.replaceElement(waypointEdit, waypoint);
-
-  document.removeEventListener(`keydown`, window.__ON_ESC_CLOSE_HANDLER__);
-};
-
-export default class WaypointEdit extends AbstractComponent {
+export default class WaypointEdit extends AbstractSmartComponent {
   constructor(waypoint) {
     super();
 
-    const {type, city, time, price, offers, destination, photos} = waypoint;
+    const {type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
 
     this._type = type;
     this._city = city;
@@ -188,6 +194,7 @@ export default class WaypointEdit extends AbstractComponent {
     this._offers = offers;
     this._destination = destination;
     this._photos = photos;
+    this._isFavorite = isFavorite;
   }
 
   get type() {
@@ -218,14 +225,37 @@ export default class WaypointEdit extends AbstractComponent {
     return this._photos;
   }
 
-  setCloseWaypointHandlers(waypoint, waypointEdit) {
-    this.getElement().querySelector(`form`).addEventListener(`submit`, () => {
-      closeWaypointEdit(waypoint.getElement(), waypointEdit.getElement());
+  setCloseWaypointEditHandlers(closeWaypointEditHandler) {
+    this.getElement().querySelector(`form`).addEventListener(`submit`, closeWaypointEditHandler);
+
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, closeWaypointEditHandler);
+
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, closeWaypointEditHandler);
+
+    this._closeWaypointEditHandler = closeWaypointEditHandler;
+  }
+
+  setAddToFavoritesHandler(_PointController, dataChangeHandler) {
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, () => {
+      this._isFavorite = !this._isFavorite;
+      dataChangeHandler(_PointController, this);
     });
 
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, () => {
-      closeWaypointEdit(waypoint.getElement(), waypointEdit.getElement());
+    this._PointController = _PointController;
+    this._dataChangeHandler = dataChangeHandler;
+  }
+
+  setChangeEventTypeHandler(changeEventTypeHandler) {
+    this.getElement().querySelector(`.event--edit`).addEventListener(`change`, () => {
+      changeEventTypeHandler();
+
+      this._changeEventTypeHandler = changeEventTypeHandler;
     });
+  }
+
+  recoveryListeners() {
+    this.setCloseWaypointHandlers(this._closeWaypointEditHandler);
+    this.setChangeEventTypeHandler(this._changeEventTypeHandler);
   }
 
   getTemplate() {

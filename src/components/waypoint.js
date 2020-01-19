@@ -1,4 +1,3 @@
-import {KEYCODES} from '../const';
 import Utils from '../utils';
 import AbstractComponent from './abstract-component';
 
@@ -63,39 +62,11 @@ const createWaypointMarkup = (waypoint) => {
   );
 };
 
-const openWaypointEdit = (waypoint, waypointEdit) => {
-  // close open waypoint edit form
-  if (document.querySelector(`.event--edit`)) {
-    document.dispatchEvent(
-        new KeyboardEvent(
-            `keydown`,
-            {
-              keyCode: 27
-            }
-        )
-    );
-  }
-
-  Utils.replaceElement(waypoint, waypointEdit);
-
-  const closeWaypointEditEscHandler = (evt) => {
-    if (evt.keyCode === KEYCODES.ESC || evt.which === KEYCODES.ESC) {
-      Utils.replaceElement(waypointEdit, waypoint);
-    }
-
-    document.removeEventListener(`keydown`, closeWaypointEditEscHandler);
-  };
-
-  document.addEventListener(`keydown`, closeWaypointEditEscHandler);
-
-  window.__ON_ESC_CLOSE_HANDLER__ = closeWaypointEditEscHandler; // to catch it in WaypointEdit component
-};
-
 export default class Waypoint extends AbstractComponent {
   constructor(waypoint) {
     super();
 
-    const {type, city, time, price, offers, destination, photos} = waypoint;
+    const {type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
 
     this._type = type;
     this._city = city;
@@ -104,6 +75,7 @@ export default class Waypoint extends AbstractComponent {
     this._offers = offers;
     this._destination = destination;
     this._photos = photos;
+    this._isFavorite = isFavorite;
   }
 
   get type() {
@@ -134,21 +106,11 @@ export default class Waypoint extends AbstractComponent {
     return this._photos;
   }
 
-  setOpenWaypointHandler(waypoint, waypointEdit) {
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-      openWaypointEdit(waypoint.getElement(), waypointEdit.getElement());
-    });
+  setOpenWaypointEditHandler(openWaypointEditHandler) {
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, openWaypointEditHandler);
   }
 
   getTemplate() {
     return createWaypointMarkup(this);
-  }
-
-  changeElement(isEdit) {
-    if (isEdit) {
-      this._element.parentNode.replaceChild(this._element, this._edit);
-    } else {
-      this._edit.parentNode.replaceChild(this._edit, this._element);
-    }
   }
 }
