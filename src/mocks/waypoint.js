@@ -126,6 +126,7 @@ export const createWaypoint = () => {
     price: getPrice(),
     offers: getOffers(),
     destination: getDestination(),
-    photos: getPhotos()
+    photos: getPhotos(),
+    isFavorite: false
   };
 };

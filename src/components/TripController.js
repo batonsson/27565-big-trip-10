@@ -3,8 +3,7 @@ import {sortOptions} from '../mocks/sort';
 import RouteTrip from './route-trip';
 import RouteDay from './route-day';
 import Sort from './sort';
-import Waypoint from './waypoint';
-import WaypointEdit from './waypoint-edit';
+import PointController, {Mode as PointControllerMode} from './PointController';
 
 import {render} from '../render';
 
@@ -32,10 +31,33 @@ export default class TripController {
   constructor(waypoints, container) {
     this._waypoints = waypoints;
     this._container = container;
+    this._PointControllers = [];
+
+    this._dataChangeHandler = this._dataChangeHandler.bind(this);
+    this._sortClickHandler = this._sortClickHandler.bind(this);
+    this._viewChangeHandler = this._viewChangeHandler.bind(this);
   }
 
   set RouteTrip(_RouteTrip) {
     this._RouteTrip = _RouteTrip;
+  }
+
+  _dataChangeHandler(_PointController, oldData, newData) {
+    _PointController.destroy();
+
+    this._waypoints[this._waypoints.indexOf(oldData)] = newData;
+
+    _PointController.render(newData, PointControllerMode.DEFAULT);
+  }
+
+  _sortClickHandler(sortType) {
+    this.renderWaypoints(sortType);
+  }
+
+  _viewChangeHandler() {
+    this._PointControllers.forEach((pointController) => {
+      pointController.setDefaultView();
+    });
   }
 
   renderWaypoints(sortType) {
@@ -60,20 +82,18 @@ export default class TripController {
     }
 
     dayList.forEach((day) => {
-      const _RouteDay = new RouteDay(day, sortType === `event`);
+      const _RouteDay = new RouteDay(day);
 
       render(tripDayListBlock, _RouteDay);
 
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
 
       _RouteDay.waypoints.forEach((waypoint) => {
-        const _Waypoint = new Waypoint(waypoint);
-        const _WaypointEdit = new WaypointEdit(waypoint);
+        const _PointController = new PointController(tripWaypointsBlock, this._dataChangeHandler, this._viewChangeHandler);
 
-        _Waypoint.setOpenWaypointHandler(_Waypoint, _WaypointEdit);
-        _WaypointEdit.setCloseWaypointHandlers(_Waypoint, _WaypointEdit);
+        this._PointControllers.push(_PointController);
 
-        tripWaypointsBlock.appendChild(_Waypoint.getElement());
+        _PointController.render(waypoint, PointControllerMode.DEFAULT);
       });
     });
   }
@@ -90,7 +110,7 @@ export default class TripController {
     const sortButtons = document.querySelectorAll(`.trip-sort__btn`);
 
     sortButtons.forEach((sortButton) => {
-      _Sort.setOnSortClickHandler(sortButton, this.renderWaypoints, this);
+      _Sort.setSortClickHandler(sortButton, this._sortClickHandler);
     });
 
     this.renderWaypoints(_Sort.activeSortType);
