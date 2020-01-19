@@ -38,10 +38,6 @@ export default class TripController {
     this._viewChangeHandler = this._viewChangeHandler.bind(this);
   }
 
-  set RouteTrip(_RouteTrip) {
-    this._RouteTrip = _RouteTrip;
-  }
-
   _dataChangeHandler(_PointController, oldData, newData) {
     _PointController.destroy();
 
@@ -58,6 +54,10 @@ export default class TripController {
     this._PointControllers.forEach((pointController) => {
       pointController.setDefaultView();
     });
+  }
+
+  set RouteTrip(_RouteTrip) {
+    this._RouteTrip = _RouteTrip;
   }
 
   renderWaypoints(sortType) {

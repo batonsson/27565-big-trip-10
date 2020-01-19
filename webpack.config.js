@@ -14,5 +14,13 @@ module.exports = {
     contentBase: path.join(__dirname, `public`),
     publicPath: `http://localhost:8080/`,
     watchContentBase: true
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [`style-loader`, `css-loader`],
+      },
+    ],
   }
 };

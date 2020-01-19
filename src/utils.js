@@ -1,5 +1,3 @@
-import {MONTHS} from './const';
-
 export default class Utils {
   static getRandomNumber(min, max) {
     return min + Math.round(max * Math.random());
@@ -31,30 +29,6 @@ export default class Utils {
     date.setMinutes(date.getMinutes() + diffMinutes);
 
     return date;
-  }
-
-  static formatDate(date, format) {
-    let dateFormatted = ``;
-
-    switch (format) {
-      case `F`:
-        dateFormatted = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear() % 100} ${this.castTimeFormat(date.getHours())}:${this.castTimeFormat(date.getMinutes())}`;
-        break;
-      case `HM`:
-        dateFormatted = `${this.castTimeFormat(date.getHours())}:${this.castTimeFormat(date.getMinutes())}`;
-        break;
-      case `DT`:
-        dateFormatted = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T${this.castTimeFormat(date.getHours())}:${this.castTimeFormat(date.getMinutes())}`;
-        break;
-      case `MD`: {
-        dateFormatted = `${MONTHS.shorthands[date.getMonth()].toUpperCase()} ${date.getDate()}`;
-        break;
-      }
-      default:
-        dateFormatted = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear() % 100} ${this.castTimeFormat(date.getHours())}:${this.castTimeFormat(date.getMinutes())}`;
-    }
-
-    return dateFormatted;
   }
 
   static capitalizeFirstLetter(string) {

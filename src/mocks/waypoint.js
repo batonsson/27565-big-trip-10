@@ -1,6 +1,8 @@
 import {TYPES, CITIES, OFFERS} from '../const';
 import Utils from '../utils';
 
+import moment from 'moment';
+
 const DESTINATION = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 
 const DESTINATION_SENTENCE_LIMIT = 2;
@@ -16,31 +18,14 @@ const getCity = () => {
 };
 
 const getTimeDiff = (start, end) => {
-  const raw = end - start;
-  const MS_DAY = 1000 * 60 * 60 * 24;
-  const minutesOverlap = end.getMinutes() > start.getMinutes(); // if false hour diff must be less by 1
-  let days = Math.floor((end - start) / MS_DAY);
-  let hours =
-    end.getHours() > start.getHours()
-      ? end.getHours() - start.getHours() - Number(!minutesOverlap)
-      : 24 - Math.abs(end.getHours() - start.getHours()) - Number(!minutesOverlap);
-  let minutes =
-    minutesOverlap
-      ? end.getMinutes() - start.getMinutes()
-      : 60 - Math.abs(end.getMinutes() - start.getMinutes());
+  const dateFrom = moment.utc(start);
+  const dateTo = moment.utc(end);
 
-  // ensure situations like 23H 60M will not happen
-  if (minutes === 60) {
-    hours++;
-    minutes = 0;
-  }
-
-  if (hours === 24) {
-    days++;
-    hours = 0;
-  }
-
-  const formatted = `${days ? days + `D` : `` } ${hours ? hours + `H` : `` } ${minutes ? minutes + `M` : `` }`.trim();
+  const raw = dateTo - dateFrom;
+  const days = moment.duration(dateTo.diff(dateFrom)).days();
+  const hours = moment.duration(dateTo.diff(dateFrom)).hours();
+  const minutes = moment.duration(dateTo.diff(dateFrom)).minutes();
+  const formatted = `${days ? days + `D` : `` } ${days || hours ? hours + `H` : `` } ${minutes ? minutes + `M` : `` }`.trim();
 
   return {
     raw,
@@ -62,17 +47,17 @@ const getTime = () => {
   const time = {
     start: {
       raw: start,
-      F: Utils.formatDate(start, `F`),
-      HM: Utils.formatDate(start, `HM`),
-      DT: Utils.formatDate(start, `DT`),
-      MD: Utils.formatDate(start, `MD`)
+      F: moment(start).format(`DD/MM/YY HH:mm`),
+      HM: moment(start).format(`HH:mm`),
+      DT: `${moment(start).format(`YYY-M-DD`)}T${moment(start).format(`HH:mm`)}`,
+      MD: moment(start).format(`MMM DD`)
     },
     end: {
       raw: end,
-      F: Utils.formatDate(end, `F`),
-      HM: Utils.formatDate(end, `HM`),
-      DT: Utils.formatDate(end, `DT`),
-      MD: Utils.formatDate(end, `MD`)
+      F: moment(end).format(`DD/MM/YY HH:mm`),
+      HM: moment(end).format(`HH:mm`),
+      DT: `${moment(end).format(`YYY-M-DD`)}T${moment(end).format(`HH:mm`)}`,
+      MD: moment(end).format(`MMM DD`)
     },
     diff: getTimeDiff(start, end)
   };
@@ -119,6 +104,7 @@ const getPhotos = () => {
 };
 
 export const createWaypoint = () => {
+  window.moment = moment;
   return {
     type: getType(),
     city: getCity(),

@@ -2,6 +2,10 @@ import {TYPES, CITIES, OFFERS} from '../const';
 import Utils from '../utils';
 import AbstractSmartComponent from './AbstractSmartComponent';
 
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/light.css';
+
 const createTypeOptionMarkup = (type) => {
   return (
     `<div class="event__type-item">
@@ -195,6 +199,46 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._destination = destination;
     this._photos = photos;
     this._isFavorite = isFavorite;
+
+    this._flatpickr = null;
+
+    this._applyFlatpickr();
+  }
+
+  _applyFlatpickr() {
+    const inputFrom = this.getElement().querySelectorAll(`.event__input--time[name="event-start-time"]`);
+    const inputTo = this.getElement().querySelectorAll(`.event__input--time[name="event-end-time"]`);
+
+    const paramsFrom = {
+      defaultDate: new Date(this._time.start.raw),
+      dateFormat: `d/m/y H:i`,
+      onChange: (dateFrom) => {
+        this._time.start.raw = dateFrom[0];
+        this._flatpickrTo.destroy();
+
+        this._flatpickrTo = flatpickr(inputTo, {
+          defaultDate: new Date(this._time.end.raw),
+          dateFormat: `d/m/y H:i`,
+          minDate: new Date(this._time.start.raw),
+          onChange: (dateTo) => {
+            this._time.end.raw = dateTo[0];
+          }
+        });
+      }
+    };
+
+    const paramsTo = {
+      defaultDate: new Date(this._time.end.raw),
+      dateFormat: `d/m/y H:i`,
+      minDate: new Date(this._time.start.raw),
+      onChange: (dateTo) => {
+        this._time.end.raw = dateTo[0];
+      }
+    };
+
+    this._flatpickrFrom = flatpickr(inputFrom, paramsFrom);
+
+    this._flatpickrTo = flatpickr(inputTo, paramsTo);
   }
 
   get type() {
