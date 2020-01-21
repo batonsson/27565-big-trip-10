@@ -27,17 +27,18 @@ const createRouteMarkup = () => {
 };
 
 export default class RouteTrip extends AbstractComponent {
-  constructor(waypoints) {
+  constructor() {
     super();
 
-    this._waypoints = waypoints;
     this._element = null;
   }
 
-  fetchDayList() {
+  fetchDayList(waypoints) {
     const dayList = [];
 
-    this._waypoints.forEach((waypoint) => {
+    waypoints = waypoints.sort((prev, next) => prev.time.start.raw - next.time.start.raw);
+
+    waypoints.forEach((waypoint) => {
       const {exists, index} = checkDayExists(waypoint, dayList);
 
       if (exists) {
@@ -58,7 +59,7 @@ export default class RouteTrip extends AbstractComponent {
   }
 
   getTemplate() {
-    return createRouteMarkup(this._waypoints);
+    return createRouteMarkup();
   }
 
   getElement() {

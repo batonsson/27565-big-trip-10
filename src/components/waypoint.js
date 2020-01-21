@@ -31,34 +31,32 @@ const createWaypointMarkup = (waypoint) => {
   const {type, time, price, offers} = waypoint;
 
   return (
-    `<li class="trip-events__item">
-      <div class="event">
-        <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
-        </div>
-        <h3 class="event__title">${Utils.capitalizeFirstLetter(type)}</h3>
-
-        <div class="event__schedule">
-          <p class="event__time">
-            <time class="event__start-time" datetime="${time.start.DT}">${time.start.HM}</time>
-            &mdash;
-            <time class="event__end-time" datetime="${time.end.DT}">${time.end.HM}</time>
-          </p>
-          <p class="event__duration">${time.diff.formatted}</p>
-        </div>
-
-        <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${price}</span>
-        </p>
-
-        <h4 class="visually-hidden">Offers:</h4>
-        ${createOfferListMarkup(offers)}
-
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+    `<div class="event">
+      <div class="event__type">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-    </li>`
+      <h3 class="event__title">${Utils.capitalizeFirstLetter(type)}</h3>
+
+      <div class="event__schedule">
+        <p class="event__time">
+          <time class="event__start-time" datetime="${time.start.DT}">${time.start.HM}</time>
+          &mdash;
+          <time class="event__end-time" datetime="${time.end.DT}">${time.end.HM}</time>
+        </p>
+        <p class="event__duration">${time.diff.formatted}</p>
+      </div>
+
+      <p class="event__price">
+        &euro;&nbsp;<span class="event__price-value">${price}</span>
+      </p>
+
+      <h4 class="visually-hidden">Offers:</h4>
+      ${createOfferListMarkup(offers)}
+
+      <button class="event__rollup-btn" type="button">
+        <span class="visually-hidden">Open event</span>
+      </button>
+    </div>`
   );
 };
 
@@ -66,8 +64,9 @@ export default class Waypoint extends AbstractComponent {
   constructor(waypoint) {
     super();
 
-    const {type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
+    const {id, type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
 
+    this._id = id;
     this._type = type;
     this._city = city;
     this._time = time;
@@ -76,6 +75,10 @@ export default class Waypoint extends AbstractComponent {
     this._destination = destination;
     this._photos = photos;
     this._isFavorite = isFavorite;
+  }
+
+  get id() {
+    return this._id;
   }
 
   get type() {
