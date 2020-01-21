@@ -4,6 +4,7 @@ import RouteTrip from './route-trip';
 import RouteDay from './route-day';
 import Sort from './sort';
 import PointController, {Mode as PointControllerMode} from './PointController';
+import Utils from '../utils';
 
 import {render} from '../render';
 
@@ -42,10 +43,20 @@ export default class TripController {
   }
 
   _dataChangeHandler(_PointController, oldData, newData) {
-    this._Waypoints.updateWaypoint(oldData.id, newData);
+    if (newData === null) {
+      this._Waypoints.deleteWaypoint(oldData.id);
+      this.renderWaypoints(`event`);
+    }
 
-    _PointController.destroy();
-    _PointController.render(newData, PointControllerMode.DEFAULT);
+    if (oldData === null) {
+      this._Waypoints.addWaypoint(newData);
+      this.renderWaypoints(`event`);
+    }
+
+    if (newData && oldData) {
+      this._Waypoints.updateWaypoint(oldData.id, newData);
+      _PointController._WaypointEdit.rerender();
+    }
   }
 
   _sortClickHandler(sortType) {
@@ -62,26 +73,46 @@ export default class TripController {
     this.renderWaypoints(this._Sort.activeSortType);
   }
 
+  _toggleNoWaypointsMessage(show) {
+    const noWaypointsMessageElement = document.querySelector(`.trip-events__msg`);
+
+    if (noWaypointsMessageElement !== null) {
+      noWaypointsMessageElement.remove();
+    }
+
+    if (show) {
+      const noWaypointsMessageTemplate = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
+      render(this._container, Utils.createElement(noWaypointsMessageTemplate));
+    }
+  }
+
   set RouteTrip(_RouteTrip) {
     this._RouteTrip = _RouteTrip;
   }
 
   renderWaypoints(sortType) {
+    const waypoints = this._Waypoints.getWaypoints();
     const tripDayListBlock = this._container.querySelector(`.trip-days`);
-
     tripDayListBlock.innerHTML = ``;
+
+    if (!waypoints.length) {
+      this._toggleNoWaypointsMessage(true);
+      return;
+    } else {
+      this._toggleNoWaypointsMessage(false);
+    }
 
     let dayList;
 
     switch (sortType) {
       case `event`:
-        dayList = this._RouteTrip.fetchDayList(this._Waypoints.getWaypoints());
+        dayList = this._RouteTrip.fetchDayList(waypoints);
         break;
       default:
         dayList = [
           {
             date: null,
-            waypoints: sortWaypoints(this._Waypoints.getWaypoints(), sortType),
+            waypoints: sortWaypoints(waypoints, sortType),
             index: null
           }
         ];
@@ -117,6 +148,15 @@ export default class TripController {
 
     sortButtons.forEach((sortButton) => {
       this._Sort.setSortClickHandler(sortButton, this._sortClickHandler);
+    });
+
+    const addWaypointButton = document.querySelector(`.trip-main__event-add-btn`);
+
+    addWaypointButton.addEventListener(`click`, (evt) => {
+      evt.target.disabled = true;
+      const _newPointController = new PointController(this._container, this._dataChangeHandler, null);
+
+      _newPointController.render(null, PointControllerMode.ADDING);
     });
 
     this.renderWaypoints(this._Sort.activeSortType);

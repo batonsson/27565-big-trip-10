@@ -1,9 +1,23 @@
 import {FilterType} from '../const';
 
+const getWaypointIndex = (waypoints, id) => {
+  let index = null;
+
+  waypoints.forEach((existingWaypoint, i) => {
+    if (existingWaypoint.id === id) {
+      index = i;
+    }
+  });
+
+  return index;
+};
+
 export default class Waypoints {
   constructor(waypoints) {
-    this._waypoints = waypoints;
+    this._waypoints = [];
     this._filter = FilterType.EVERYTHING;
+
+    this.setWaypoints(waypoints);
   }
 
   getWaypoints() {
@@ -11,29 +25,29 @@ export default class Waypoints {
 
     switch (this._filter) {
       case FilterType.EVERYTHING:
-        waypoints = this._waypoints.slice();
+        waypoints = this._waypoints;
         break;
       case FilterType.FUTURE:
         waypoints = this._waypoints.filter((waypoint) => {
           return new Date() - waypoint.time.start.raw < 0;
-        }).slice();
+        });
         break;
       case FilterType.PAST:
         waypoints = this._waypoints.filter((waypoint) => {
           return new Date() - waypoint.time.end.raw > 0;
-        }).slice();
+        });
         break;
     }
 
-    return waypoints;
+    return waypoints.slice();
   }
 
   setWaypoints(waypoints) {
-    this._waypoints = waypoints;
-  }
+    waypoints.forEach((waypoint, index) => {
+      waypoint.id = index;
+    });
 
-  updateWaypoint(id, waypoint) {
-    this._waypoints[id] = waypoint;
+    this._waypoints = waypoints;
   }
 
   setFilter(filter) {
@@ -43,5 +57,22 @@ export default class Waypoints {
 
   filterChangeHandler(tripHandler) {
     this._tripHandler = tripHandler;
+  }
+
+  addWaypoint(waypoint) {
+    waypoint.id = this._waypoints.length + 1;
+    this._waypoints.unshift(waypoint);
+  }
+
+  updateWaypoint(id, waypoint) {
+    const index = getWaypointIndex(this._waypoints, id);
+
+    this._waypoints[index] = waypoint;
+  }
+
+  deleteWaypoint(id) {
+    const index = getWaypointIndex(this._waypoints, id);
+
+    this._waypoints.splice(index, 1);
   }
 }

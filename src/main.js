@@ -6,15 +6,14 @@ import Menu from './components/site-menu';
 import Waypoints from './models/waypoints';
 import FilterController from './controllers/FilterController';
 import TripController from './components/TripController';
-import Utils from './utils';
 import {render} from './render';
 
-const WAYPOINTS_NUMBER = 10;
+const WAYPOINTS_NUMBER = 2;
 
 const waypoints = [];
 
 for (let i = 0; i < WAYPOINTS_NUMBER; i++) {
-  waypoints.push(createWaypoint(i));
+  waypoints.push(createWaypoint());
 }
 
 const _RouteInfo = new RouteInfo(waypoints);
@@ -32,17 +31,11 @@ tripCostValue.textContent = _RouteInfo.cost;
 render(tripRouteInfoBlock, _RouteInfo, tripCost);
 render(tripControlsBlock, _Menu);
 
-if (waypoints.length) {
-  const _Waypoints = new Waypoints(waypoints);
+const _Waypoints = new Waypoints(waypoints);
 
-  const _FilterController = new FilterController(_Waypoints, tripControlsBlock);
-  _FilterController.render();
+const _FilterController = new FilterController(_Waypoints, tripControlsBlock);
+_FilterController.render();
 
-  const _TripController = new TripController(_Waypoints, tripEventsBlock);
+const _TripController = new TripController(_Waypoints, tripEventsBlock);
 
-  _TripController.init();
-} else {
-  const noWaypointsMessageTemplate = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
-
-  render(tripEventsBlock, Utils.createElement(noWaypointsMessageTemplate));
-}
+_TripController.init();

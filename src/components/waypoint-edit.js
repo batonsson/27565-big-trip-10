@@ -103,90 +103,90 @@ const createPhotoListMarkup = (photos) => {
   );
 };
 
-const getWaypointEditMarkup = (waypoint) => {
+const getWaypointEditMarkup = (waypoint, isAddMode) => {
   const {type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
+  const formClassName = isAddMode ? `trip-events__item  event event--edit` : `event event--edit`;
+  const resetButtonText = isAddMode ? `Cancel` : `Delete`;
+  const favoriteButton = isAddMode ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
+                                            <label class="event__favorite-btn" for="event-favorite-1">
+                                              <span class="visually-hidden">Add to favorite</span>
+                                              <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+                                                <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+                                              </svg>
+                                            </label>`;
+  const rollupButton = isAddMode ? `` : `<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>`;
 
   return (
-    `<li class="trip-events__item">
-      <form class="event  event--edit" action="#" method="post">
-        <header class="event__header">
-          <div class="event__type-wrapper">
-            <label class="event__type  event__type-btn" for="event-type-toggle-1">
-              <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
-            </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
-
-            <div class="event__type-list">
-              ${createTypeListMarkup(TYPES, `transfer`)}
-              ${createTypeListMarkup(TYPES, `activity`)}
-            </div>
-          </div>
-
-          <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1">
-              ${Utils.capitalizeFirstLetter(type)} at
-            </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city}" list="destination-list-1">
-            ${createCityDatalistMarkup(CITIES)}
-          </div>
-
-          <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-1">
-              From
-            </label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${time.start.F}">
-            &mdash;
-            <label class="visually-hidden" for="event-end-time-1">
-              To
-            </label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${time.end.F}">
-          </div>
-
-          <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-1">
-              <span class="visually-hidden">Price</span>
-              &euro;
-            </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
-          </div>
-
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
-
-          <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
-          <label class="event__favorite-btn" for="event-favorite-1">
-            <span class="visually-hidden">Add to favorite</span>
-            <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-              <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
-            </svg>
+    `<form class="${formClassName}" action="#" method="post">
+      <header class="event__header">
+        <div class="event__type-wrapper">
+          <label class="event__type  event__type-btn" for="event-type-toggle-1">
+            <span class="visually-hidden">Choose event type</span>
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
-          <button class="event__rollup-btn" type="button">
-            <span class="visually-hidden">Open event</span>
-          </button>
-        </header>
-        <section class="event__details">
-          <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+          <div class="event__type-list">
+            ${createTypeListMarkup(TYPES, `transfer`)}
+            ${createTypeListMarkup(TYPES, `activity`)}
+          </div>
+        </div>
 
-            ${createOfferListMarkup(OFFERS, offers)}
-          </section>
+        <div class="event__field-group  event__field-group--destination">
+          <label class="event__label  event__type-output" for="event-destination-1">
+            ${Utils.capitalizeFirstLetter(type)} at
+          </label>
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city}" list="destination-list-1">
+          ${createCityDatalistMarkup(CITIES)}
+        </div>
 
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destination}</p>
+        <div class="event__field-group  event__field-group--time">
+          <label class="visually-hidden" for="event-start-time-1">
+            From
+          </label>
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${time.start.F}">
+          &mdash;
+          <label class="visually-hidden" for="event-end-time-1">
+            To
+          </label>
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${time.end.F}">
+        </div>
 
-            ${createPhotoListMarkup(photos)}
-          </section>
+        <div class="event__field-group  event__field-group--price">
+          <label class="event__label" for="event-price-1">
+            <span class="visually-hidden">Price</span>
+            &euro;
+          </label>
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+        </div>
+
+        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+        <button class="event__reset-btn" type="reset">${resetButtonText}</button>
+
+        ${favoriteButton}
+
+        ${rollupButton}
+      </header>
+      <section class="event__details">
+        <section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+
+          ${createOfferListMarkup(OFFERS, offers)}
         </section>
-      </form>
-    </li>`
+
+        <section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${destination}</p>
+
+          ${createPhotoListMarkup(photos)}
+        </section>
+      </section>
+    </form>`
   );
 };
 
 export default class WaypointEdit extends AbstractSmartComponent {
-  constructor(waypoint) {
+  constructor(waypoint, isAddMode) {
     super();
 
     const {id, type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
@@ -201,45 +201,15 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._photos = photos;
     this._isFavorite = isFavorite;
 
+    this._isAddMode = isAddMode;
+
+    this._waypointReset = Object.assign({}, waypoint);
+
     this._flatpickr = null;
 
-    this._applyFlatpickr();
-  }
-
-  _applyFlatpickr() {
-    const inputFrom = this.getElement().querySelectorAll(`.event__input--time[name="event-start-time"]`);
-    const inputTo = this.getElement().querySelectorAll(`.event__input--time[name="event-end-time"]`);
-
-    const paramsFrom = {
-      defaultDate: new Date(this._time.start.raw),
-      dateFormat: `d/m/y H:i`,
-      onChange: (dateFrom) => {
-        this._time.start.raw = dateFrom[0];
-        this._flatpickrTo.destroy();
-
-        this._flatpickrTo = flatpickr(inputTo, {
-          defaultDate: new Date(this._time.end.raw),
-          dateFormat: `d/m/y H:i`,
-          minDate: new Date(this._time.start.raw),
-          onChange: (dateTo) => {
-            this._time.end.raw = dateTo[0];
-          }
-        });
-      }
-    };
-
-    const paramsTo = {
-      defaultDate: new Date(this._time.end.raw),
-      dateFormat: `d/m/y H:i`,
-      minDate: new Date(this._time.start.raw),
-      onChange: (dateTo) => {
-        this._time.end.raw = dateTo[0];
-      }
-    };
-
-    this._flatpickrFrom = flatpickr(inputFrom, paramsFrom);
-
-    this._flatpickrTo = flatpickr(inputTo, paramsTo);
+    if (this._isAddMode) {
+      this.applyFlatpickr();
+    }
   }
 
   get id() {
@@ -278,46 +248,55 @@ export default class WaypointEdit extends AbstractSmartComponent {
     return this._isFavorite;
   }
 
-  setCloseWaypointEditHandlers(closeWaypointEditHandler) {
-    this.getElement().querySelector(`form`).addEventListener(`submit`, closeWaypointEditHandler);
-
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, closeWaypointEditHandler);
-
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, closeWaypointEditHandler);
-
-    this._closeWaypointEditHandler = closeWaypointEditHandler;
+  get data() {
+    return {
+      type: this._type,
+      city: this._city,
+      time: this._time,
+      price: this._price,
+      offers: this._offers,
+      destination: this._destination,
+      photos: this._photos
+    };
   }
 
-  setAddToFavoritesHandler(dataChangeHandler) {
-    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, dataChangeHandler);
+  applyFlatpickr() {
+    const inputFrom = this.getElement().querySelectorAll(`.event__input--time[name="event-start-time"]`);
+    const inputTo = this.getElement().querySelectorAll(`.event__input--time[name="event-end-time"]`);
 
-    this._dataChangeHandler = dataChangeHandler;
+    const paramsFrom = {
+      defaultDate: new Date(this._time.start.raw),
+      dateFormat: `d/m/y H:i`,
+      onChange: (dateFrom) => {
+        this._time.start.raw = dateFrom[0];
+        this._flatpickrTo.destroy();
+
+        this._flatpickrTo = flatpickr(inputTo, {
+          defaultDate: new Date(this._time.end.raw),
+          dateFormat: `d/m/y H:i`,
+          minDate: new Date(this._time.start.raw),
+          onChange: (dateTo) => {
+            this._time.end.raw = dateTo[0];
+          }
+        });
+      }
+    };
+
+    const paramsTo = {
+      defaultDate: new Date(this._time.end.raw),
+      dateFormat: `d/m/y H:i`,
+      minDate: new Date(this._time.start.raw),
+      onChange: (dateTo) => {
+        this._time.end.raw = dateTo[0];
+      }
+    };
+
+    this._flatpickrFrom = flatpickr(inputFrom, paramsFrom);
+
+    this._flatpickrTo = flatpickr(inputTo, paramsTo);
   }
 
-  setChangeEventTypeHandler(changeEventTypeHandler) {
-    this.getElement().querySelector(`.event__type-list`).addEventListener(`change`, changeEventTypeHandler);
-
-    this._changeEventTypeHandler = changeEventTypeHandler;
-  }
-
-  setChangeEventCityHandler(changeEventCityHandler) {
-    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, changeEventCityHandler);
-
-    this._changeEventCityHandler = changeEventCityHandler;
-  }
-
-  recoveryListeners() {
-    this.setCloseWaypointHandlers(this._closeWaypointEditHandler);
-    this.setAddToFavoritesHandler(this._dataChangeHandler);
-    this.setChangeEventTypeHandler(this._changeEventTypeHandler);
-    this.setChangeEventCityHandler(this._changeEventCityHandler);
-  }
-
-  getTemplate() {
-    return getWaypointEditMarkup(this);
-  }
-
-  removeElement() {
+  destroyFlatpickr() {
     if (this._flatpickrFrom) {
       this._flatpickrFrom.destroy();
       this._flatpickrFrom = null;
@@ -327,7 +306,87 @@ export default class WaypointEdit extends AbstractSmartComponent {
       this._flatpickrTo.destroy();
       this._flatpickrTo = null;
     }
+  }
 
+  resetWaypoint() {
+    const {type, city, time, price, offers, destination, photos} = this._waypointReset;
+
+    this._type = type;
+    this._city = city;
+    this._time = time;
+    this._price = price;
+    this._offers = offers;
+    this._destination = destination;
+    this._photos = photos;
+
+    this.rerender();
+  }
+
+  setSubmitWaypointHandler(submitWaypointHandler) {
+    this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, submitWaypointHandler);
+
+    this._submitWaypointHandler = submitWaypointHandler;
+  }
+
+  setCloseWaypointEditHandlers(closeWaypointEditHandler) {
+    this.getElement().addEventListener(`submit`, closeWaypointEditHandler);
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, closeWaypointEditHandler);
+
+    this._closeWaypointEditHandler = closeWaypointEditHandler;
+  }
+
+  setDeleteWaypointHandler(deleteWaypointHandler) {
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, deleteWaypointHandler);
+
+    this._deleteWaypointHandler = deleteWaypointHandler;
+  }
+
+  setAddToFavoritesHandler(dataChangeHandler) {
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, () => {
+      this._isFavorite = !this._isFavorite;
+      dataChangeHandler();
+    });
+
+    this._dataChangeHandler = dataChangeHandler;
+  }
+
+  setChangeEventTypeHandler(changeEventTypeHandler) {
+    this.getElement().querySelector(`.event__type-list`).addEventListener(`change`, (evt) => {
+      this._type = evt.target.value;
+      changeEventTypeHandler(evt);
+    });
+
+    this._changeEventTypeHandler = changeEventTypeHandler;
+  }
+
+  setChangeEventCityHandler(changeEventCityHandler) {
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
+      this._city = evt.target.value;
+      changeEventCityHandler(evt);
+    });
+
+    this._changeEventCityHandler = changeEventCityHandler;
+  }
+
+  recoveryListeners() {
+    if (this._isAddMode) {
+      this.setSubmitWaypointHandler(this._submitWaypointHandler);
+    } else {
+      this.setCloseWaypointEditHandlers(this._closeWaypointEditHandler);
+      this.setAddToFavoritesHandler(this._dataChangeHandler);
+    }
+
+    this.setChangeEventTypeHandler(this._changeEventTypeHandler);
+    this.setChangeEventCityHandler(this._changeEventCityHandler);
+    this.setDeleteWaypointHandler(this._deleteWaypointHandler);
+  }
+
+  getTemplate() {
+    return getWaypointEditMarkup(this, this._isAddMode);
+  }
+
+  removeElement() {
+    this.destroyFlatpickr();
     super.removeElement();
   }
 }

@@ -103,10 +103,8 @@ const getPhotos = () => {
   return photos;
 };
 
-export const createWaypoint = (id) => {
-  window.moment = moment;
+export const createWaypoint = () => {
   return {
-    id,
     type: getType(),
     city: getCity(),
     time: getTime(),
