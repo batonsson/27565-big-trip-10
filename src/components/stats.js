@@ -1,6 +1,6 @@
 import AbstractComponent from './abstract-component';
 import Chart from 'chart.js';
-import chartjsPluginDatalabels from 'chartjs-plugin-datalabels';
+// import chartjsPluginDatalabels from 'chartjs-plugin-datalabels';
 
 const createStatsMarkup = () => {
   return (
