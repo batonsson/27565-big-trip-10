@@ -1,4 +1,4 @@
-import Utils from '../utils';
+import Utils from '../utils/utils';
 
 export default class AbstractComponent {
   constructor() {
@@ -23,5 +23,13 @@ export default class AbstractComponent {
 
   removeElement() {
     this._element = null;
+  }
+
+  show() {
+    this._element.classList.remove(`visually-hidden`);
+  }
+
+  hide() {
+    this._element.classList.add(`visually-hidden`);
   }
 }

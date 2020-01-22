@@ -1,16 +1,14 @@
+import {FILTER_TYPE} from '../utils/const';
+import {render} from '../utils/render';
 import {filterOptions} from '../mocks/filters';
-
 import Filters from '../components/filters';
-
-import {render} from '../render';
-import {FilterType} from '../const';
 
 export default class FilterController {
   constructor(Waypoints, container) {
     this._Waypoints = Waypoints;
     this._container = container;
 
-    this._activeFilterType = FilterType.EVERYTHING;
+    this._activeFilterType = FILTER_TYPE.EVERYTHING;
     this._Filters = null;
 
     this._filterChangeHandler = this._filterChangeHandler.bind(this);

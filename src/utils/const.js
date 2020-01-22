@@ -104,8 +104,19 @@ export const OFFERS = [
   }
 ];
 
-export const FilterType = {
+export const FILTER_TYPE = {
   EVERYTHING: `everything`,
   FUTURE: `future`,
   PAST: `past`
+};
+
+export const MENU_ITEMS = {
+  TABLE: `table`,
+  STATS: `stats`,
+};
+
+export const CHART_TYPES = {
+  MONEY: `money`,
+  TRANSPORT: `transport`,
+  TIME: `time`
 };

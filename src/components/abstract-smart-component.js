@@ -1,5 +1,5 @@
 import AbstractComponent from './abstract-component';
-import Utils from '../utils';
+import Utils from '../utils/utils';
 
 export default class AbstractSmartComponent extends AbstractComponent {
   constructor() {
