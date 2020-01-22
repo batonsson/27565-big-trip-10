@@ -1,12 +1,10 @@
+import Utils from '../utils/utils';
+import {render} from '../utils/render';
 import {sortOptions} from '../mocks/sort';
-
-import RouteTrip from './route-trip';
-import RouteDay from './route-day';
-import Sort from './sort';
-import PointController, {Mode as PointControllerMode} from './PointController';
-import Utils from '../utils';
-
-import {render} from '../render';
+import PointController, {Mode as PointControllerMode} from './point-controller';
+import RouteTrip from '../components/route-trip';
+import RouteDay from '../components/route-day';
+import Sort from '../components/sort';
 
 const sortByTime = (next, prev) => {
   return prev.time.diff.raw - next.time.diff.raw;
@@ -160,5 +158,13 @@ export default class TripController {
     });
 
     this.renderWaypoints(this._Sort.activeSortType);
+  }
+
+  show() {
+    this._container.classList.remove(`visually-hidden`);
+  }
+
+  hide() {
+    this._container.classList.add(`visually-hidden`);
   }
 }

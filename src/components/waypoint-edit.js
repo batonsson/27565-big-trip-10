@@ -1,6 +1,6 @@
-import {TYPES, CITIES, OFFERS} from '../const';
-import Utils from '../utils';
-import AbstractSmartComponent from './AbstractSmartComponent';
+import AbstractSmartComponent from './abstract-smart-component';
+import {TYPES, CITIES, OFFERS} from '../utils/const';
+import Utils from '../utils/utils';
 
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';

@@ -1,5 +1,5 @@
-import Utils from '../utils';
 import AbstractComponent from './abstract-component';
+import Utils from '../utils/utils';
 
 const createOfferMarkup = (offer) => {
   const {type, price} = offer;

@@ -1,10 +1,9 @@
-import {KEYCODES} from '../const';
-
-import Waypoint from './waypoint';
-import WaypointEdit from './waypoint-edit';
-import Utils from '../utils';
-import {remove} from '../render';
+import {KEYCODES} from '../utils/const';
+import Utils from '../utils/utils';
+import {remove} from '../utils/render';
 import {createWaypoint} from '../mocks/waypoint';
+import Waypoint from '../components/waypoint';
+import WaypointEdit from '../components/waypoint-edit';
 
 export const Mode = {
   ADDING: `adding`,

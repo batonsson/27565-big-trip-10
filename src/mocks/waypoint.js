@@ -1,5 +1,5 @@
-import {TYPES, CITIES, OFFERS} from '../const';
-import Utils from '../utils';
+import {TYPES, CITIES, OFFERS} from '../utils/const';
+import Utils from '../utils/utils';
 
 import moment from 'moment';
 
