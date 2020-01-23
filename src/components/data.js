@@ -23,7 +23,6 @@ export default class Data {
   }
 
   getDestinationByCity(city) {
-    console.log(this);
     const destination = this._destinations.filter((dest) => dest.name === city);
 
     return destination.length ? destination[0] : `Sorry to say we're not going there, pal.`;
