@@ -21,4 +21,11 @@ export default class Data {
       return offer.type === type;
     })[0].offers;
   }
+
+  getDestinationByCity(city) {
+    console.log(this);
+    const destination = this._destinations.filter((dest) => dest.name === city);
+
+    return destination.length ? destination[0] : `Sorry to say we're not going there, pal.`;
+  }
 }

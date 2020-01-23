@@ -1,7 +1,7 @@
 import {KEYCODES} from '../utils/const';
 import Utils from '../utils/utils';
 import {remove} from '../utils/render';
-import {createWaypoint} from '../mocks/waypoint';
+import WaypointModel from '../models/waypoint';
 import Waypoint from '../components/waypoint';
 import WaypointEdit from '../components/waypoint-edit';
 
@@ -15,7 +15,6 @@ export default class PointController {
   constructor(container, Data, dataChangeHandler, viewChangeHandler) {
     this._container = container;
     this._mode = null;
-    this._waypointDefault = createWaypoint();
 
     this._Data = Data;
 
@@ -63,7 +62,7 @@ export default class PointController {
 
   render(waypoint, mode) {
     if (waypoint === null) {
-      waypoint = this._waypointDefault;
+      waypoint = new WaypointModel(WaypointModel.getDefaultData());
     }
 
     this._mode = mode;

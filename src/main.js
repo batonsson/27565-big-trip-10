@@ -13,7 +13,7 @@ import Data from './components/data';
 const _Data = new Data();
 
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip/`;
-const AUTH = `Basic eo0w590ik29889a`;
+const AUTH = `Basic eo0w590ik29869a`;
 const API = new Api(END_POINT, AUTH);
 
 const tripMainBlock = document.querySelector(`.trip-main`);

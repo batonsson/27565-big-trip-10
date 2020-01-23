@@ -89,14 +89,14 @@ export default class Waypoint {
 
   toRaw() {
     return {
-      'id': this._id,
-      'type': this._type,
-      'date_from': this._time.start.raw.toISOString(),
-      'date_to': this._time.end.raw.toISOString(),
+      'id': this.id,
+      'type': this.type,
+      'date_from': this.time.start.raw.toISOString(),
+      'date_to': this.time.end.raw.toISOString(),
       'base_price': this.price,
-      'offers': this._offers,
-      'destination': this._destination,
-      'is_favorite': this._isFavorite
+      'offers': this.offers,
+      'destination': this.destination,
+      'is_favorite': this.isFavorite
     };
   }
 
@@ -108,6 +108,34 @@ export default class Waypoint {
     this._offers = data.offers;
     this._destination = data.destination;
     this._isFavorite = data.isFavorite;
+  }
+
+  static getDefaultData() {
+    const dateNow = (new Date()).toISOString();
+
+    return {
+      'id': null,
+      'type': `bus`,
+      'date_from': dateNow,
+      'date_to': dateNow,
+      'destination': {
+        name: `Vien`,
+        description: `Vien, with an embankment of a mighty river as a centre of attraction, a perfect place to stay with a family.`,
+        pictures: [
+          {
+            src: `http://picsum.photos/300/200?r=0.6193744600657889`,
+            description: `Vien street market`
+          },
+          {
+            src: `http://picsum.photos/300/200?r=0.4154849146673443`,
+            description: `Vien park`
+          },
+        ]
+      },
+      'base_price': 500,
+      'isFavorite': false,
+      'offers': []
+    };
   }
 
   static parseWaypoint(data) {

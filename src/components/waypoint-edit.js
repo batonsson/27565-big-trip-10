@@ -370,7 +370,12 @@ export default class WaypointEdit extends AbstractSmartComponent {
 
   setChangeEventCityHandler(changeEventCityHandler) {
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
-      this._destination.name = evt.target.value;
+      const newDestination = this._Data.getDestinationByCity(evt.target.value);
+
+      this._destination.name = newDestination.name;
+      this._destination.description = newDestination.description;
+      this._destination.pictures = newDestination.pictures;
+
       changeEventCityHandler(evt);
     });
 
@@ -378,12 +383,16 @@ export default class WaypointEdit extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
+    if (this._isAddMode) {
+      this.setDeleteWaypointHandler(this._deleteWaypointHandler);
+    } else {
+      this.setAddToFavoritesHandler(this._addToFavoritesHandler);
+      this.setCloseWaypointEditHandlers(this._closeWaypointEditHandler);
+    }
+
     this.setSubmitWaypointHandler(this._submitWaypointHandler);
-    this.setCloseWaypointEditHandlers(this._closeWaypointEditHandler);
-    this.setAddToFavoritesHandler(this._addToFavoritesHandler);
     this.setChangeEventTypeHandler(this._changeEventTypeHandler);
     this.setChangeEventCityHandler(this._changeEventCityHandler);
-    this.setDeleteWaypointHandler(this._deleteWaypointHandler);
   }
 
   getTemplate() {

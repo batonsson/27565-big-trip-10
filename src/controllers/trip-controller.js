@@ -41,9 +41,6 @@ export default class TripController {
     this._sortClickHandler = this._sortClickHandler.bind(this);
     this._viewChangeHandler = this._viewChangeHandler.bind(this);
     this._filterChangeHandler = this._filterChangeHandler.bind(this);
-
-    this._API.getOffers().then((response) => this._Data.setOffers(response));
-    this._API.getDestinations().then((response) => this._Data.setDestinations(response));
   }
 
   _dataChangeHandler(_PointController, waypoint, type) {
@@ -159,7 +156,7 @@ export default class TripController {
 
     addWaypointButton.addEventListener(`click`, (evt) => {
       evt.target.disabled = true;
-      const _newPointController = new PointController(this._container, this._dataChangeHandler, null);
+      const _newPointController = new PointController(this._container, this._Data, this._dataChangeHandler, null);
 
       _newPointController.render(null, PointControllerMode.ADDING);
     });
