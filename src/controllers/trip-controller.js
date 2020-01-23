@@ -27,33 +27,40 @@ const sortWaypoints = (waypoints, sortType) => {
 };
 
 export default class TripController {
-  constructor(Waypoints, container) {
+  constructor(Waypoints, Data, API, container) {
     this._Waypoints = Waypoints;
     this._container = container;
     this._Sort = null;
     this._RouteTrip = null;
     this._PointControllers = [];
 
+    this._Data = Data;
+    this._API = API;
+
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
     this._sortClickHandler = this._sortClickHandler.bind(this);
     this._viewChangeHandler = this._viewChangeHandler.bind(this);
     this._filterChangeHandler = this._filterChangeHandler.bind(this);
+
+    this._API.getOffers().then((response) => this._Data.setOffers(response));
+    this._API.getDestinations().then((response) => this._Data.setDestinations(response));
   }
 
-  _dataChangeHandler(_PointController, oldData, newData) {
-    if (newData === null) {
-      this._Waypoints.deleteWaypoint(oldData.id);
-      this.renderWaypoints(`event`);
-    }
-
-    if (oldData === null) {
-      this._Waypoints.addWaypoint(newData);
-      this.renderWaypoints(`event`);
-    }
-
-    if (newData && oldData) {
-      this._Waypoints.updateWaypoint(oldData.id, newData);
-      _PointController._WaypointEdit.rerender();
+  _dataChangeHandler(_PointController, waypoint, type) {
+    switch (type) {
+      case `Add`:
+        break;
+      case `Delete`:
+        break;
+      case `Change`:
+        _PointController._WaypointEdit.rerender();
+        break;
+      case `Submit`:
+        this._API.saveWaypoint(waypoint).then((newWaypoint) => {
+          this._Waypoints.updateWaypoint(newWaypoint);
+          this.renderWaypoints(this._Sort.activeSortType);
+        });
+        break;
     }
   }
 
@@ -124,7 +131,7 @@ export default class TripController {
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
 
       _RouteDay.waypoints.forEach((waypoint) => {
-        const _PointController = new PointController(tripWaypointsBlock, this._dataChangeHandler, this._viewChangeHandler);
+        const _PointController = new PointController(tripWaypointsBlock, this._Data, this._dataChangeHandler, this._viewChangeHandler);
 
         this._PointControllers.push(_PointController);
 

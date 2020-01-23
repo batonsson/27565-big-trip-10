@@ -1,6 +1,5 @@
 import {MENU_ITEMS, CHART_TYPES} from './utils/const';
-import {createWaypoint} from './mocks/waypoint';
-
+import Api from './api/index';
 import RouteInfo from './components/route-info';
 import Menu from './components/site-menu';
 import Waypoints from './models/waypoints';
@@ -9,14 +8,13 @@ import FilterController from './controllers/filter-controller';
 import TripController from './controllers/trip-controller';
 import {render} from './utils/render';
 import {fetchChartData} from './utils/chart-fetch';
+import Data from './components/data';
 
-const WAYPOINTS_NUMBER = 2;
+const _Data = new Data();
 
-const waypoints = [];
-
-for (let i = 0; i < WAYPOINTS_NUMBER; i++) {
-  waypoints.push(createWaypoint());
-}
+const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip/`;
+const AUTH = `Basic eo0w590ik29889a`;
+const API = new Api(END_POINT, AUTH);
 
 const tripMainBlock = document.querySelector(`.trip-main`);
 const tripBodyBlock = document.querySelector(`.page-main .page-body__container`);
@@ -26,18 +24,11 @@ const tripCost = tripRouteInfoBlock.querySelector(`.trip-info__cost`);
 const tripCostValue = tripCost.querySelector(`.trip-info__cost-value`);
 const tripControlsBlock = tripMainBlock.querySelector(`.trip-main__trip-controls`);
 
-const _Waypoints = new Waypoints(waypoints);
-const _RouteInfo = new RouteInfo(waypoints);
+const _Waypoints = new Waypoints();
+const _FilterController = new FilterController(_Waypoints, tripControlsBlock);
+const _TripController = new TripController(_Waypoints, _Data, API, tripEventsBlock);
 const _Menu = new Menu();
 const _Stats = new Stats();
-const _FilterController = new FilterController(_Waypoints, tripControlsBlock);
-const _TripController = new TripController(_Waypoints, tripEventsBlock);
-
-tripCostValue.textContent = _RouteInfo.cost;
-
-render(tripRouteInfoBlock, _RouteInfo, tripCost);
-render(tripControlsBlock, _Menu);
-render(tripBodyBlock, _Stats);
 
 _Menu.setMenuClickHandler((menuItem) => {
   if (menuItem === _Menu.activeItem) {
@@ -66,5 +57,20 @@ _Menu.setMenuItemActive(MENU_ITEMS.TABLE);
 _Stats.hide();
 _TripController.show();
 
-_FilterController.render();
-_TripController.init();
+render(tripControlsBlock, _Menu);
+render(tripBodyBlock, _Stats);
+
+const promiseOffers = API.getOffers().then((response) => _Data.setOffers(response));
+const promiseDestinations = API.getDestinations().then((response) => _Data.setDestinations(response));
+
+Promise.all([promiseOffers, promiseDestinations]).then(() => {
+  API.getWaypoints().then((waypoints) => {
+    _Waypoints.setWaypoints(waypoints);
+    const _RouteInfo = new RouteInfo(_Waypoints.getWaypoints());
+
+    render(tripRouteInfoBlock, _RouteInfo, tripCost);
+    tripCostValue.textContent = _RouteInfo.cost;
+    _FilterController.render();
+    _TripController.init();
+  });
+});

@@ -12,10 +12,12 @@ export const Mode = {
 };
 
 export default class PointController {
-  constructor(container, dataChangeHandler, viewChangeHandler) {
+  constructor(container, Data, dataChangeHandler, viewChangeHandler) {
     this._container = container;
     this._mode = null;
     this._waypointDefault = createWaypoint();
+
+    this._Data = Data;
 
     this._closeWaypointEditEscHandler = null;
     this._openWaypointEditHandler = this._openWaypointEditHandler.bind(this);
@@ -65,20 +67,14 @@ export default class PointController {
     }
 
     this._mode = mode;
-    this._WaypointEdit = new WaypointEdit(waypoint, this._mode === Mode.ADDING);
+    this._WaypointEdit = new WaypointEdit(waypoint, this._Data, this._mode === Mode.ADDING);
 
-    this._WaypointEdit.setChangeEventTypeHandler((evt) => {
-      const newWaypoint = Object.assign({}, waypoint);
-      newWaypoint.type = evt.target.value;
-
-      this._dataChangeHandler(this, waypoint, newWaypoint);
+    this._WaypointEdit.setChangeEventTypeHandler(() => {
+      this._dataChangeHandler(this, waypoint, `Change`);
     });
 
-    this._WaypointEdit.setChangeEventCityHandler((evt) => {
-      const newWaypoint = Object.assign({}, waypoint);
-      newWaypoint.city = evt.target.value;
-
-      this._dataChangeHandler(this, waypoint, newWaypoint);
+    this._WaypointEdit.setChangeEventCityHandler(() => {
+      this._dataChangeHandler(this, waypoint, `Change`);
     });
 
     if (this._mode === Mode.ADDING) {
@@ -109,16 +105,19 @@ export default class PointController {
         this._openWaypointEditHandler();
       });
 
-      this._WaypointEdit.setAddToFavoritesHandler(() => {
-        const newWaypoint = Object.assign({}, waypoint);
-
-        newWaypoint.isFavorite = !newWaypoint.isFavorite;
-
-        this._dataChangeHandler(this, waypoint, newWaypoint);
-      });
-
       this._WaypointEdit.setCloseWaypointEditHandlers(() => {
         this._viewChangeHandler();
+      });
+
+      this._WaypointEdit.setAddToFavoritesHandler(() => {
+        waypoint.setData(this._WaypointEdit.data);
+        this._dataChangeHandler(this, waypoint, `Submit`);
+      });
+
+      this._WaypointEdit.setSubmitWaypointHandler((evt) => {
+        evt.preventDefault();
+        waypoint.setData(this._WaypointEdit.data);
+        this._dataChangeHandler(this, waypoint, `Submit`);
       });
 
       this._WaypointEdit.setDeleteWaypointHandler(() => {

@@ -13,11 +13,9 @@ const getWaypointIndex = (waypoints, id) => {
 };
 
 export default class Waypoints {
-  constructor(waypoints) {
+  constructor() {
     this._waypoints = [];
     this._filter = FILTER_TYPE.EVERYTHING;
-
-    this.setWaypoints(waypoints);
   }
 
   getWaypoints() {
@@ -43,10 +41,6 @@ export default class Waypoints {
   }
 
   setWaypoints(waypoints) {
-    waypoints.forEach((waypoint, index) => {
-      waypoint.id = index;
-    });
-
     this._waypoints = waypoints;
   }
 
@@ -64,8 +58,8 @@ export default class Waypoints {
     this._waypoints.unshift(waypoint);
   }
 
-  updateWaypoint(id, waypoint) {
-    const index = getWaypointIndex(this._waypoints, id);
+  updateWaypoint(waypoint) {
+    const index = getWaypointIndex(this._waypoints, waypoint.id);
 
     this._waypoints[index] = waypoint;
   }
