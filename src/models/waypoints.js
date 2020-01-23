@@ -58,8 +58,8 @@ export default class Waypoints {
     this._waypoints.unshift(waypoint);
   }
 
-  updateWaypoint(id, waypoint) {
-    const index = getWaypointIndex(this._waypoints, id);
+  updateWaypoint(waypoint) {
+    const index = getWaypointIndex(this._waypoints, waypoint.id);
 
     this._waypoints[index] = waypoint;
   }

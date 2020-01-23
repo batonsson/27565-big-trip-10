@@ -1,7 +1,7 @@
 import Utils from '../utils/utils';
 import {render} from '../utils/render';
 import {sortOptions} from '../mocks/sort';
-import PointController, {Mode as PointControllerMode, Mode} from './point-controller';
+import PointController, {Mode as PointControllerMode} from './point-controller';
 import RouteTrip from '../components/route-trip';
 import RouteDay from '../components/route-day';
 import Sort from '../components/sort';
@@ -57,7 +57,7 @@ export default class TripController {
         break;
       case `Submit`:
         this._API.saveWaypoint(waypoint).then((newWaypoint) => {
-          _PointController._WaypointEdit.data = newWaypoint;
+          this._Waypoints.updateWaypoint(newWaypoint);
           this.renderWaypoints(this._Sort.activeSortType);
         });
         break;
