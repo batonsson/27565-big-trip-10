@@ -2,11 +2,11 @@ import AbstractComponent from './abstract-component';
 import Utils from '../utils/utils';
 
 const createOfferMarkup = (offer) => {
-  const {type, price} = offer;
+  const {title, price} = offer;
 
   return (
     `<li class="event__offer">
-      <span class="event__offer-title">${type}</span>
+      <span class="event__offer-title">${title}</span>
       &plus;
       &euro;&nbsp;<span class="event__offer-price">${price}</span>
     </li>`
@@ -50,8 +50,10 @@ const createWaypointMarkup = (waypoint) => {
         &euro;&nbsp;<span class="event__price-value">${price}</span>
       </p>
 
-      <h4 class="visually-hidden">Offers:</h4>
-      ${createOfferListMarkup(offers)}
+      ${offers.length ? `
+        <h4 class="visually-hidden">Offers:</h4>
+        ${createOfferListMarkup(offers)}
+      ` : ``}
 
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
@@ -64,16 +66,14 @@ export default class Waypoint extends AbstractComponent {
   constructor(waypoint) {
     super();
 
-    const {id, type, city, time, price, offers, destination, photos, isFavorite} = waypoint;
+    const {id, type, time, price, offers, destination, isFavorite} = waypoint;
 
     this._id = id;
     this._type = type;
-    this._city = city;
     this._time = time;
     this._price = price;
     this._offers = offers;
     this._destination = destination;
-    this._photos = photos;
     this._isFavorite = isFavorite;
   }
 
@@ -83,10 +83,6 @@ export default class Waypoint extends AbstractComponent {
 
   get type() {
     return this._type;
-  }
-
-  get city() {
-    return this._city;
   }
 
   get time() {
@@ -105,8 +101,8 @@ export default class Waypoint extends AbstractComponent {
     return this._destination;
   }
 
-  get photos() {
-    return this._photos;
+  get isFavorite() {
+    return this._isFavorite;
   }
 
   setOpenWaypointEditHandler(openWaypointEditHandler) {

@@ -13,11 +13,9 @@ const getWaypointIndex = (waypoints, id) => {
 };
 
 export default class Waypoints {
-  constructor(waypoints) {
+  constructor() {
     this._waypoints = [];
     this._filter = FILTER_TYPE.EVERYTHING;
-
-    this.setWaypoints(waypoints);
   }
 
   getWaypoints() {
@@ -43,10 +41,6 @@ export default class Waypoints {
   }
 
   setWaypoints(waypoints) {
-    waypoints.forEach((waypoint, index) => {
-      waypoint.id = index;
-    });
-
     this._waypoints = waypoints;
   }
 

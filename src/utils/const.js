@@ -69,6 +69,10 @@ export const TYPES = [
   {
     value: `train`,
     group: `transfer`
+  },
+  {
+    value: `transport`,
+    group: `transfer`
   }
 ];
 

@@ -5,7 +5,7 @@ const fetchRouteCities = (waypoints) => {
   const cities = [];
 
   waypoints.forEach((waypoint) => {
-    cities.push(waypoint.city);
+    cities.push(waypoint.destination.name);
   });
 
   return cities;
@@ -38,10 +38,10 @@ const fetchRouteInfo = (waypoints) => {
 };
 
 const createCitiesMarkup = (cities) => {
-  const citiesMarkup = cities.join(`, `);
+  const citiesMarkup = cities.length < 3 ? cities.join(`, `) : `${cities[0]} — ... — ${cities[cities.length - 1]}`;
 
   return (
-    `<h1 class="trip-info__title">${citiesMarkup}</h1>`
+    `${citiesMarkup}`
   );
 };
 
