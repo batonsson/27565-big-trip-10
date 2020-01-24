@@ -93,6 +93,7 @@ export default class TripController {
   }
 
   renderWaypoints(sortType) {
+    this._PointControllers = [];
     const waypoints = this._Waypoints.getWaypoints();
     const tripDayListBlock = this._container.querySelector(`.trip-days`);
     tripDayListBlock.innerHTML = ``;
