@@ -76,6 +76,10 @@ export default class PointController {
       this._dataChangeHandler(this, waypoint, `Change`);
     });
 
+    this._WaypointEdit.setChangePriceHandler(() => {
+      this._dataChangeHandler(this, waypoint, `Change`);
+    });
+
     if (this._mode === Mode.ADDING) {
       const addWaypointButton = document.querySelector(`.trip-main__event-add-btn`);
 
