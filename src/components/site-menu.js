@@ -1,14 +1,14 @@
 import AbstractComponent from './abstract-component';
-import {MENU_ITEMS} from '../utils/const';
 import Utils from '../utils/utils.js';
+import {MenuItem} from '../utils/const';
 
 const ACTIVE_CLASS = `trip-tabs__btn--active`;
 
 const createMenuListMarkup = () => {
   return (
     `<nav class="trip-controls__trip-tabs  trip-tabs">
-      <a class="trip-tabs__btn" href="#" data-menu-item="${MENU_ITEMS.TABLE}">${Utils.capitalizeFirstLetter(MENU_ITEMS.TABLE)}</a>
-      <a class="trip-tabs__btn" href="#" data-menu-item="${MENU_ITEMS.STATS}">${Utils.capitalizeFirstLetter(MENU_ITEMS.STATS)}</a>
+      <a class="trip-tabs__btn" href="#" data-menu-item="${MenuItem.TABLE}">${Utils.capitalizeFirstLetter(MenuItem.TABLE)}</a>
+      <a class="trip-tabs__btn" href="#" data-menu-item="${MenuItem.STATS}">${Utils.capitalizeFirstLetter(MenuItem.STATS)}</a>
     </nav>`
   );
 };

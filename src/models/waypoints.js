@@ -1,4 +1,4 @@
-import {FILTER_TYPE} from '../utils/const';
+import {FilterType} from '../utils/const';
 
 const getWaypointIndex = (waypoints, id) => {
   let index = null;
@@ -15,22 +15,22 @@ const getWaypointIndex = (waypoints, id) => {
 export default class Waypoints {
   constructor() {
     this._waypoints = [];
-    this._filter = FILTER_TYPE.EVERYTHING;
+    this._filter = FilterType.EVERYTHING;
   }
 
   getWaypoints() {
     let waypoints = [];
 
     switch (this._filter) {
-      case FILTER_TYPE.EVERYTHING:
+      case FilterType.EVERYTHING:
         waypoints = this._waypoints;
         break;
-      case FILTER_TYPE.FUTURE:
+      case FilterType.FUTURE:
         waypoints = this._waypoints.filter((waypoint) => {
           return new Date() - waypoint.time.start.raw < 0;
         });
         break;
-      case FILTER_TYPE.PAST:
+      case FilterType.PAST:
         waypoints = this._waypoints.filter((waypoint) => {
           return new Date() - waypoint.time.end.raw > 0;
         });
@@ -54,19 +54,16 @@ export default class Waypoints {
   }
 
   addWaypoint(waypoint) {
-    waypoint.id = this._waypoints.length + 1;
     this._waypoints.unshift(waypoint);
   }
 
   updateWaypoint(waypoint) {
     const index = getWaypointIndex(this._waypoints, waypoint.id);
-
     this._waypoints[index] = waypoint;
   }
 
   deleteWaypoint(id) {
     const index = getWaypointIndex(this._waypoints, id);
-
     this._waypoints.splice(index, 1);
   }
 }

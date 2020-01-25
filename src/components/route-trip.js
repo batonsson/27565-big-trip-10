@@ -35,7 +35,6 @@ export default class RouteTrip extends AbstractComponent {
 
   fetchDayList(waypoints) {
     const dayList = [];
-
     waypoints = waypoints.sort((prev, next) => prev.time.start.raw - next.time.start.raw);
 
     waypoints.forEach((waypoint) => {

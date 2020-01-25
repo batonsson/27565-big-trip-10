@@ -12,28 +12,18 @@ const fetchRouteCities = (waypoints) => {
 };
 
 const fetchRouteDate = (waypoints) => {
-  const date = {
-    start: null,
-    end: null
+  return {
+    start: waypoints[0].time.start.MD,
+    end: waypoints[waypoints.length - 1].time.start.MD
   };
-
-  waypoints.forEach((waypoint) => {
-    if (waypoint.time.start.raw < date.start || date.start === null) {
-      date.start = waypoint.time.start.MD;
-    }
-
-    if (waypoint.time.end.raw > date.end || date.end === null) {
-      date.end = waypoint.time.end.MD;
-    }
-  });
-
-  return date;
 };
 
 const fetchRouteInfo = (waypoints) => {
+  const waypointsSorted = waypoints.slice().sort((prev, next) => prev.time.start.raw - next.time.start.raw);
+
   return {
-    cities: fetchRouteCities(waypoints),
-    date: fetchRouteDate(waypoints)
+    cities: fetchRouteCities(waypointsSorted),
+    date: fetchRouteDate(waypointsSorted)
   };
 };
 
@@ -76,7 +66,6 @@ const getRouteMarkup = (waypoints) => {
   return (
     `<div class="trip-info__main">
       <h1 class="trip-info__title">${citiesMarkup}</h1>
-
       <p class="trip-info__dates">${dateMarkup}</p>
     </div>`
   );
@@ -87,12 +76,12 @@ export default class RouteInfo extends AbstractComponent {
     super();
 
     this._waypoints = waypoints;
-    this._cost = getRouteCost(this._waypoints);
+    this._cost = 0;
     this._element = null;
   }
 
   get cost() {
-    return this._cost;
+    return getRouteCost(this._waypoints);
   }
 
   getTemplate() {
@@ -100,6 +89,8 @@ export default class RouteInfo extends AbstractComponent {
   }
 
   getElement() {
+    document.querySelector(`.trip-info__cost-value`).textContent = getRouteCost(this._waypoints);
+
     if (!this._element) {
       this._element = Utils.createElement(this.getTemplate());
     }
@@ -107,7 +98,11 @@ export default class RouteInfo extends AbstractComponent {
     return this._element;
   }
 
-  removeElement() {
-    this._element = null;
+  recalculate(waypoints) {
+    this._waypoints = waypoints;
+    const oldElement = this.getElement();
+    this.removeElement();
+    const newElement = this.getElement();
+    Utils.replaceElement(oldElement, newElement);
   }
 }

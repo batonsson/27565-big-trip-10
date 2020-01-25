@@ -1,10 +1,51 @@
 import AbstractSmartComponent from './abstract-smart-component';
-import {TYPES} from '../utils/const';
 import Utils from '../utils/utils';
-
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
+
+export const EventType = [
+  {
+    value: `bus`,
+    group: `transfer`
+  },
+  {
+    value: `check-in`,
+    group: `activity`
+  },
+  {
+    value: `drive`,
+    group: `transfer`
+  },
+  {
+    value: `flight`,
+    group: `transfer`
+  },
+  {
+    value: `restaurant`,
+    group: `activity`
+  },
+  {
+    value: `ship`,
+    group: `transfer`
+  },
+  {
+    value: `sightseeing`,
+    group: `activity`
+  },
+  {
+    value: `taxi`,
+    group: `transfer`
+  },
+  {
+    value: `train`,
+    group: `transfer`
+  },
+  {
+    value: `transport`,
+    group: `transfer`
+  }
+];
 
 const createTypeOptionMarkup = (type, currentType) => {
   return (
@@ -55,7 +96,7 @@ const createOfferMarkup = (offer, isChosen) => {
 
   return (
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" ${isChosen ? `checked` : ``}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" data-type="${title}" ${isChosen ? `checked` : ``}>
       <label class="event__offer-label" for="event-offer-${title}-1">
         <span class="event__offer-title">${title}</span>
         &plus;
@@ -69,8 +110,8 @@ const createOfferListMarkup = (offersAll, offersChecked) => {
   let offersMarkup = ``;
 
   offersAll.forEach((offer) => {
-    const isChosen = !!offersChecked.filter((offerChecked) => offerChecked.title === offer.title).length;
-    offersMarkup += createOfferMarkup(offer, isChosen);
+    const waypointOffers = offersChecked.filter((offerChecked) => offerChecked.title === offer.title);
+    offersMarkup += createOfferMarkup(waypointOffers[0] || offer, !!waypointOffers.length);
   });
 
   return (
@@ -130,8 +171,8 @@ const getWaypointEditMarkup = (waypoint, Data, isAddMode) => {
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
           <div class="event__type-list">
-            ${createTypeListMarkup(TYPES, `transfer`, type)}
-            ${createTypeListMarkup(TYPES, `activity`, type)}
+            ${createTypeListMarkup(EventType, `transfer`, type)}
+            ${createTypeListMarkup(EventType, `activity`, type)}
           </div>
         </div>
 
@@ -205,16 +246,12 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._isFavorite = isFavorite;
 
     this._Data = Data;
-
     this._isAddMode = isAddMode;
 
     this._waypointReset = JSON.parse(JSON.stringify(waypoint));
-
     this._flatpickr = null;
 
-    if (this._isAddMode) {
-      this.applyFlatpickr();
-    }
+    this._subscribeOnEvents();
   }
 
   get id() {
@@ -270,18 +307,23 @@ export default class WaypointEdit extends AbstractSmartComponent {
   }
 
   applyFlatpickr() {
-    const inputFrom = this.getElement().querySelectorAll(`.event__input--time[name="event-start-time"]`);
-    const inputTo = this.getElement().querySelectorAll(`.event__input--time[name="event-end-time"]`);
+    const inputFrom = this.getElement().querySelector(`.event__input--time[name="event-start-time"]`);
+    const inputTo = this.getElement().querySelector(`.event__input--time[name="event-end-time"]`);
 
     const paramsFrom = {
       defaultDate: new Date(this._time.start.raw),
       dateFormat: `d/m/y H:i`,
       onChange: (dateFrom) => {
         this._time.start.raw = dateFrom[0];
+
+        const isNewFromOverlap = this._time.start.raw > this._time.end.raw;
+        const defaultDate = isNewFromOverlap ? new Date(this._time.start.raw) : new Date(this._time.end.raw);
+
+        this._time.end.raw = isNewFromOverlap ? this._time.start.raw : this._time.end.raw;
         this._flatpickrTo.destroy();
 
         this._flatpickrTo = flatpickr(inputTo, {
-          defaultDate: new Date(this._time.end.raw),
+          defaultDate,
           dateFormat: `d/m/y H:i`,
           minDate: new Date(this._time.start.raw),
           onChange: (dateTo) => {
@@ -301,7 +343,6 @@ export default class WaypointEdit extends AbstractSmartComponent {
     };
 
     this._flatpickrFrom = flatpickr(inputFrom, paramsFrom);
-
     this._flatpickrTo = flatpickr(inputTo, paramsTo);
   }
 
@@ -318,35 +359,40 @@ export default class WaypointEdit extends AbstractSmartComponent {
   }
 
   resetWaypoint() {
-    const {_type, _city, _time, _price, _offers, _destination, _photos} = this._waypointReset;
+    const {_type, _time, _price, _offers, _destination} = this._waypointReset;
 
     this._type = _type;
-    this._city = _city;
     this._time = _time;
     this._price = _price;
     this._offers = _offers;
     this._destination = _destination;
-    this._photos = _photos;
 
     this.rerender();
   }
 
+  rerender() {
+    const oldElement = this.getElement();
+    this.removeElement();
+    const newElement = this.getElement();
+    Utils.replaceElement(oldElement, newElement);
+
+    this.recoveryListeners();
+    this.applyFlatpickr();
+  }
+
   setSubmitWaypointHandler(submitWaypointHandler) {
     this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, submitWaypointHandler);
-
     this._submitWaypointHandler = submitWaypointHandler;
   }
 
   setCloseWaypointEditHandlers(closeWaypointEditHandler) {
     this.getElement().addEventListener(`submit`, closeWaypointEditHandler);
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, closeWaypointEditHandler);
-
     this._closeWaypointEditHandler = closeWaypointEditHandler;
   }
 
   setDeleteWaypointHandler(deleteWaypointHandler) {
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, deleteWaypointHandler);
-
     this._deleteWaypointHandler = deleteWaypointHandler;
   }
 
@@ -359,31 +405,15 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._addToFavoritesHandler = addToFavoritesHandler;
   }
 
-  setChangeEventTypeHandler(changeEventTypeHandler) {
-    this.getElement().querySelector(`.event__type-list`).addEventListener(`change`, (evt) => {
-      this._type = evt.target.value;
-      changeEventTypeHandler(evt);
-    });
-
-    this._changeEventTypeHandler = changeEventTypeHandler;
-  }
-
-  setChangeEventCityHandler(changeEventCityHandler) {
-    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
-      this._destination.name = evt.target.value;
-      changeEventCityHandler(evt);
-    });
-
-    this._changeEventCityHandler = changeEventCityHandler;
-  }
-
   recoveryListeners() {
+    if (!this._isAddMode) {
+      this.setAddToFavoritesHandler(this._addToFavoritesHandler);
+      this.setCloseWaypointEditHandlers(this._closeWaypointEditHandler);
+    }
+
     this.setSubmitWaypointHandler(this._submitWaypointHandler);
-    this.setCloseWaypointEditHandlers(this._closeWaypointEditHandler);
-    this.setAddToFavoritesHandler(this._addToFavoritesHandler);
-    this.setChangeEventTypeHandler(this._changeEventTypeHandler);
-    this.setChangeEventCityHandler(this._changeEventCityHandler);
     this.setDeleteWaypointHandler(this._deleteWaypointHandler);
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
@@ -393,5 +423,54 @@ export default class WaypointEdit extends AbstractSmartComponent {
   removeElement() {
     this.destroyFlatpickr();
     super.removeElement();
+  }
+
+  _subscribeOnEvents() {
+    this.getElement().querySelector(`.event__type-list`).addEventListener(`change`, (evt) => {
+      this._type = evt.target.value;
+      this._offers = [];
+      this.rerender();
+    });
+
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
+      const newDestination = this._Data.getDestinationByCity(evt.target.value);
+      this._destination.name = newDestination.name;
+      this._destination.description = newDestination.description;
+      this._destination.pictures = newDestination.pictures;
+      this.rerender();
+    });
+
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
+      this._price = Number(evt.target.value);
+      this.rerender();
+    });
+
+    if (this.getElement().querySelector(`.event__section--offers`) !== null) {
+      this.getElement().querySelector(`.event__section--offers`).addEventListener(`change`, (evt) => {
+        const type = evt.target.dataset.type;
+        const offersOfType = this._Data.getOffersByType(this.type);
+        let isActive = false;
+
+        this.offers.forEach((offer, index) => {
+          if (offer.title === type) {
+            this.offers.splice(index, 1);
+            isActive = true;
+          }
+        });
+
+        if (isActive) {
+          this.rerender();
+          return;
+        }
+
+        offersOfType.forEach((offer) => {
+          if (offer.title === type) {
+            this.offers.push(offer);
+          }
+        });
+
+        this.rerender();
+      });
+    }
   }
 }
