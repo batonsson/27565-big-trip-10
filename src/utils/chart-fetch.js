@@ -1,5 +1,5 @@
-import {CHART_TYPES} from './const';
 import moment from 'moment';
+import {ChartType} from './const';
 
 const getPossibleWaypoints = (waypoints, possibleTypes) => {
   return waypoints.filter((waypoint) => {
@@ -62,13 +62,13 @@ export const fetchChartData = (_Waypoints, type) => {
   let data = {};
 
   switch (type) {
-    case CHART_TYPES.MONEY:
+    case ChartType.MONEY:
       data = fetchChartMoneyData(_Waypoints);
       break;
-    case CHART_TYPES.TRANSPORT:
+    case ChartType.TRANSPORT:
       data = fetchChartTransportData(_Waypoints);
       break;
-    case CHART_TYPES.TIME:
+    case ChartType.TIME:
       data = fetchChartTimeData(_Waypoints);
       break;
   }

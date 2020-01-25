@@ -1,11 +1,30 @@
 import Utils from '../utils/utils';
-import {render} from '../utils/render';
-import {sortOptions} from '../mocks/sort';
-import PointController, {Mode as PointControllerMode} from './point-controller';
-import RouteTrip from '../components/route-trip';
 import RouteDay from '../components/route-day';
+import RouteInfo from '../components/route-info';
+import RouteTrip from '../components/route-trip';
 import Sort from '../components/sort';
-import {DataHandleTypes} from '../utils/const';
+import PointController, {Mode as PointControllerMode} from './point-controller';
+import {DataHandleType} from '../utils/const';
+import {render} from '../utils/render';
+
+const sortOptions = [
+  {
+    value: `event`,
+    icon: false,
+    isActive: true
+  },
+  {
+    value: `time`,
+    type: true,
+    isActive: false
+  },
+  {
+    value: `price`,
+    type: true,
+    isActive: false
+  }
+];
+
 
 const ButtonState = {
   SAVE: {
@@ -61,13 +80,20 @@ const toggleFormError = (form, isError) => {
   }
 };
 
+const handleSuccess = (ctx) => {
+  ctx.renderWaypoints(ctx._Sort.activeSortType);
+  ctx._RouteInfo.recalculate(ctx._Waypoints.getWaypoints());
+};
+
 export default class TripController {
   constructor(Waypoints, Data, API, container) {
     this._Waypoints = Waypoints;
     this._container = container;
     this._Sort = null;
+    this._RouteInfo = null;
     this._RouteTrip = null;
     this._PointControllers = [];
+    this._newPointControllers = null;
 
     this._Data = Data;
     this._API = API;
@@ -82,19 +108,18 @@ export default class TripController {
     const source = _PointController._WaypointEdit.getElement();
     toggleFormActive(source, false);
     toggleFormError(source, false);
-
     let button = null;
 
     switch (type) {
-      case DataHandleTypes.ADD:
+      case DataHandleType.ADD:
         button = source.querySelector(`.event__save-btn`);
         changeButtonState(button, ButtonState.SAVE.IN_PROGRESS);
 
         this._API.addWaypoint(waypoint)
-          .then(() => {
-            _PointController.destroy();
-            this._Waypoints.addWaypoint(waypoint);
-            this.renderWaypoints(this._Sort.activeSortType);
+          .then((newWaypoint) => {
+            _PointController._closeWaypointAddHandler();
+            this._Waypoints.addWaypoint(newWaypoint);
+            handleSuccess(this);
           })
           .catch(() => {
             handleCatch(button, ButtonState.SAVE.DEFAULT, source);
@@ -104,14 +129,14 @@ export default class TripController {
           });
         break;
 
-      case DataHandleTypes.SAVE:
+      case DataHandleType.SAVE:
         button = source.querySelector(`.event__save-btn`);
         changeButtonState(button, ButtonState.SAVE.IN_PROGRESS);
 
         this._API.saveWaypoint(waypoint)
           .then((newWaypoint) => {
             this._Waypoints.updateWaypoint(newWaypoint);
-            this.renderWaypoints(this._Sort.activeSortType);
+            handleSuccess(this);
           })
           .catch(() => {
             handleCatch(button, ButtonState.SAVE.DEFAULT, source);
@@ -121,7 +146,7 @@ export default class TripController {
           });
         break;
 
-      case DataHandleTypes.DELETE:
+      case DataHandleType.DELETE:
         button = source.querySelector(`.event__reset-btn`);
         changeButtonState(button, ButtonState.DELETE.IN_PROGRESS);
 
@@ -129,7 +154,7 @@ export default class TripController {
           .then(() => {
             _PointController.destroy();
             this._Waypoints.deleteWaypoint(waypoint.id);
-            this.renderWaypoints(this._Sort.activeSortType);
+            handleSuccess(this);
           })
           .catch(() => {
             handleCatch(button, ButtonState.DELETE.DEFAULT, source);
@@ -149,6 +174,10 @@ export default class TripController {
     this._PointControllers.forEach((pointController) => {
       pointController.setDefaultView();
     });
+
+    if (this._newPointController) {
+      this._newPointController.setDefaultView();
+    }
   }
 
   _filterChangeHandler() {
@@ -203,25 +232,25 @@ export default class TripController {
 
     dayList.forEach((day) => {
       const _RouteDay = new RouteDay(day);
-
       render(tripDayListBlock, _RouteDay);
-
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
 
       _RouteDay.waypoints.forEach((waypoint) => {
         const _PointController = new PointController(tripWaypointsBlock, this._Data, this._dataChangeHandler, this._viewChangeHandler);
-
         this._PointControllers.push(_PointController);
-
         _PointController.render(waypoint, PointControllerMode.DEFAULT);
       });
     });
   }
 
   init() {
+    this._RouteInfo = new RouteInfo(this._Waypoints.getWaypoints());
+    const tripRouteInfoBlock = document.querySelector(`.trip-main__trip-info`);
+    const tripCost = tripRouteInfoBlock.querySelector(`.trip-info__cost`);
+    render(tripRouteInfoBlock, this._RouteInfo, tripCost);
+
     this._Sort = new Sort(sortOptions);
     this._RouteTrip = new RouteTrip(this._Waypoints.getWaypoints());
-
     render(this._container, this._Sort);
     render(this._container, this._RouteTrip);
 
@@ -236,10 +265,13 @@ export default class TripController {
     const addWaypointButton = document.querySelector(`.trip-main__event-add-btn`);
 
     addWaypointButton.addEventListener(`click`, (evt) => {
-      evt.target.disabled = true;
-      const _newPointController = new PointController(this._container, this._Data, this._dataChangeHandler, null);
+      if (!this._newPointController) {
+        this._newPointController = new PointController(this._container, this._Data, this._dataChangeHandler, this._viewChangeHandler);
+      }
 
-      _newPointController.render(null, PointControllerMode.ADDING);
+      this._viewChangeHandler();
+      evt.target.disabled = true;
+      this._newPointController.render(null, PointControllerMode.ADDING);
     });
 
     this.renderWaypoints(this._Sort.activeSortType);

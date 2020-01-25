@@ -1,9 +1,9 @@
-import {KEYCODES, DataHandleTypes} from '../utils/const';
 import Utils from '../utils/utils';
-import {remove} from '../utils/render';
 import WaypointModel from '../models/waypoint';
 import Waypoint from '../components/waypoint';
 import WaypointEdit from '../components/waypoint-edit';
+import {Keycode, DataHandleType} from '../utils/const';
+import {remove} from '../utils/render';
 
 export const Mode = {
   ADDING: `adding`,
@@ -17,46 +17,52 @@ export default class PointController {
     this._mode = null;
 
     this._Data = Data;
-
-    this._closeWaypointEditEscHandler = null;
-    this._openWaypointEditHandler = this._openWaypointEditHandler.bind(this);
-    this._closeWaypointEditHandler = this._closeWaypointEditHandler.bind(this);
-
     this._dataChangeHandler = dataChangeHandler;
     this._viewChangeHandler = viewChangeHandler;
+
+    this._closeWaypointEscHandler = null;
+    this._openWaypointEditHandler = this._openWaypointEditHandler.bind(this);
+    this._closeWaypointEditHandler = this._closeWaypointEditHandler.bind(this);
+    this._closeWaypointAddHandler = this._closeWaypointAddHandler.bind(this);
   }
 
   _openWaypointEditHandler() {
-    document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
-
+    document.removeEventListener(`keydown`, this._closeWaypointEscHandler);
     Utils.replaceElement(this._Waypoint.getElement(), this._WaypointEdit.getElement());
     this._WaypointEdit.applyFlatpickr();
-
     this._mode = Mode.EDIT;
 
-    this._closeWaypointEditEscHandler = (evt) => {
-      if (evt.keyCode === KEYCODES.ESC || evt.which === KEYCODES.ESC) {
+    this._closeWaypointEscHandler = (evt) => {
+      if (evt.keyCode === Keycode.ESC || evt.which === Keycode.ESC) {
         this._closeWaypointEditHandler();
       }
     };
 
-    document.addEventListener(`keydown`, this._closeWaypointEditEscHandler);
+    document.addEventListener(`keydown`, this._closeWaypointEscHandler);
   }
 
   _closeWaypointEditHandler() {
     this._WaypointEdit.resetWaypoint();
-
     Utils.replaceElement(this._WaypointEdit.getElement(), this._Waypoint.getElement());
-
-    document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
-
     this._mode = Mode.DEFAULT;
-    this._closeWaypointEditEscHandler = null;
+
+    document.removeEventListener(`keydown`, this._closeWaypointEscHandler);
+  }
+
+  _closeWaypointAddHandler() {
+    document.querySelector(`.trip-main__event-add-btn`).disabled = false;
+    this.destroy();
+
+    document.removeEventListener(`keydown`, this._closeWaypointEscHandler);
   }
 
   setDefaultView() {
-    if (this._mode !== Mode.DEFAULT) {
+    if (this._mode === Mode.EDIT) {
       this._closeWaypointEditHandler();
+    }
+
+    if (this._mode === Mode.ADDING) {
+      this._closeWaypointAddHandler();
     }
   }
 
@@ -69,20 +75,24 @@ export default class PointController {
     this._WaypointEdit = new WaypointEdit(waypoint, this._Data, this._mode === Mode.ADDING);
 
     if (this._mode === Mode.ADDING) {
-      const addWaypointButton = document.querySelector(`.trip-main__event-add-btn`);
+      document.removeEventListener(`keydown`, this._closeWaypointEscHandler);
 
+      this._WaypointEdit.applyFlatpickr();
       this._WaypointEdit.setSubmitWaypointHandler((evt) => {
         evt.preventDefault();
-
         waypoint.setData(this._WaypointEdit.data);
-        this._dataChangeHandler(this, waypoint, DataHandleTypes.ADD);
-        addWaypointButton.disabled = false;
+        this._dataChangeHandler(this, waypoint, DataHandleType.ADD);
       });
 
-      this._WaypointEdit.setDeleteWaypointHandler(() => {
-        this.destroy();
-        addWaypointButton.disabled = false;
-      });
+      this._WaypointEdit.setDeleteWaypointHandler(this._viewChangeHandler);
+
+      this._closeWaypointEscHandler = (evt) => {
+        if (evt.keyCode === Keycode.ESC || evt.which === Keycode.ESC) {
+          this._closeWaypointAddHandler();
+        }
+      };
+
+      document.addEventListener(`keydown`, this._closeWaypointEscHandler);
     }
 
     if (this._mode === Mode.DEFAULT) {
@@ -93,23 +103,21 @@ export default class PointController {
         this._openWaypointEditHandler();
       });
 
-      this._WaypointEdit.setCloseWaypointEditHandlers(() => {
-        this._viewChangeHandler();
-      });
+      this._WaypointEdit.setCloseWaypointEditHandlers(this._viewChangeHandler);
 
       this._WaypointEdit.setAddToFavoritesHandler(() => {
         waypoint.setData(this._WaypointEdit.data);
-        this._dataChangeHandler(this, waypoint, DataHandleTypes.SAVE);
+        this._dataChangeHandler(this, waypoint, DataHandleType.SAVE);
       });
 
       this._WaypointEdit.setSubmitWaypointHandler((evt) => {
         evt.preventDefault();
         waypoint.setData(this._WaypointEdit.data);
-        this._dataChangeHandler(this, waypoint, DataHandleTypes.SAVE);
+        this._dataChangeHandler(this, waypoint, DataHandleType.SAVE);
       });
 
       this._WaypointEdit.setDeleteWaypointHandler(() => {
-        this._dataChangeHandler(this, waypoint, DataHandleTypes.DELETE);
+        this._dataChangeHandler(this, waypoint, DataHandleType.DELETE);
       });
     }
 
@@ -133,6 +141,6 @@ export default class PointController {
     }
 
     remove(this._WaypointEdit);
-    document.removeEventListener(`keydown`, this._closeWaypointEditEscHandler);
+    document.removeEventListener(`keydown`, this._closeWaypointEscHandler);
   }
 }

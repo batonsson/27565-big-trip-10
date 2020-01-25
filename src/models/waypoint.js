@@ -91,8 +91,8 @@ export default class Waypoint {
     return {
       'id': this.id,
       'type': this.type,
-      'date_from': this.time.start.raw.toISOString(),
-      'date_to': this.time.end.raw.toISOString(),
+      'date_from': this.time.start.raw,
+      'date_to': this.time.end.raw,
       'base_price': this.price,
       'offers': this.offers,
       'destination': this.destination,

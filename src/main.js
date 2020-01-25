@@ -1,27 +1,24 @@
-import {MENU_ITEMS, CHART_TYPES} from './utils/const';
-import Api from './api/index';
-import RouteInfo from './components/route-info';
-import Menu from './components/site-menu';
+import Utils from './utils/utils';
 import Waypoints from './models/waypoints';
-import Stats from './components/stats';
+import Menu from './components/site-menu';
 import FilterController from './controllers/filter-controller';
+import Stats from './components/stats';
 import TripController from './controllers/trip-controller';
+import Data from './components/data';
+import Api from './api/index';
+import {MenuItem, ChartType} from './utils/const';
 import {render} from './utils/render';
 import {fetchChartData} from './utils/chart-fetch';
-import Data from './components/data';
 
 const _Data = new Data();
 
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
-const AUTH = `Basic eo0w590ik2986969`;
+const AUTH = `Basic eo0w590ik2986969696`;
 const API = new Api(END_POINT, AUTH);
 
 const tripMainBlock = document.querySelector(`.trip-main`);
 const tripBodyBlock = document.querySelector(`.page-main .page-body__container`);
 const tripEventsBlock = tripBodyBlock.querySelector(`.trip-events`);
-const tripRouteInfoBlock = tripMainBlock.querySelector(`.trip-main__trip-info`);
-const tripCost = tripRouteInfoBlock.querySelector(`.trip-info__cost`);
-const tripCostValue = tripCost.querySelector(`.trip-info__cost-value`);
 const tripControlsBlock = tripMainBlock.querySelector(`.trip-main__trip-controls`);
 
 const _Waypoints = new Waypoints();
@@ -30,47 +27,53 @@ const _TripController = new TripController(_Waypoints, _Data, API, tripEventsBlo
 const _Menu = new Menu();
 const _Stats = new Stats();
 
+window.trip = _TripController;
+
 _Menu.setMenuClickHandler((menuItem) => {
   if (menuItem === _Menu.activeItem) {
     return;
   }
 
   switch (menuItem) {
-    case MENU_ITEMS.TABLE:
+    case MenuItem.TABLE:
       _Stats.hide();
       _Stats.destroyAllCharts();
       _TripController.show();
       break;
-    case MENU_ITEMS.STATS:
+    case MenuItem.STATS:
       _TripController.hide();
       _Stats.show();
-      _Stats.createChart(CHART_TYPES.MONEY, _Stats.createChartParams(fetchChartData(_Waypoints, CHART_TYPES.MONEY)));
-      _Stats.createChart(CHART_TYPES.TRANSPORT, _Stats.createChartParams(fetchChartData(_Waypoints, CHART_TYPES.TRANSPORT)));
-      _Stats.createChart(CHART_TYPES.TIME, _Stats.createChartParams(fetchChartData(_Waypoints, CHART_TYPES.TIME)));
+      _Stats.createChart(ChartType.MONEY, _Stats.createChartParams(fetchChartData(_Waypoints, ChartType.MONEY)));
+      _Stats.createChart(ChartType.TRANSPORT, _Stats.createChartParams(fetchChartData(_Waypoints, ChartType.TRANSPORT)));
+      _Stats.createChart(ChartType.TIME, _Stats.createChartParams(fetchChartData(_Waypoints, ChartType.TIME)));
       break;
   }
 
   _Menu.setMenuItemActive(menuItem);
 });
 
-_Menu.setMenuItemActive(MENU_ITEMS.TABLE);
+_Menu.setMenuItemActive(MenuItem.TABLE);
 _Stats.hide();
 _TripController.show();
 
 render(tripControlsBlock, _Menu);
 render(tripBodyBlock, _Stats);
 
+const loadingWaypointsMessage = Utils.createElement(`<p class="trip-events__msg">Loading...</p>`);
+render(tripEventsBlock, loadingWaypointsMessage);
+
 const promiseOffers = API.getOffers().then((response) => _Data.setOffers(response));
 const promiseDestinations = API.getDestinations().then((response) => _Data.setDestinations(response));
 
 Promise.all([promiseOffers, promiseDestinations]).then(() => {
-  API.getWaypoints().then((waypoints) => {
-    _Waypoints.setWaypoints(waypoints);
-    const _RouteInfo = new RouteInfo(_Waypoints.getWaypoints());
-
-    render(tripRouteInfoBlock, _RouteInfo, tripCost);
-    tripCostValue.textContent = _RouteInfo.cost;
-    _FilterController.render();
-    _TripController.init();
-  });
+  API.getWaypoints()
+    .then((waypoints) => {
+      loadingWaypointsMessage.remove();
+      _Waypoints.setWaypoints(waypoints);
+      _FilterController.render();
+      _TripController.init();
+    })
+    .catch(() => {
+      loadingWaypointsMessage.textContent = `Something is wrong. Do not try later. There is no try.`;
+    });
 });
