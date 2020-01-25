@@ -29,9 +29,9 @@ export default class Menu extends AbstractComponent {
   }
 
   setMenuClickHandler(menuClickHandler) {
-    const MenuItem = this.getElement().querySelectorAll(`.trip-tabs__btn`);
+    const menuItems = this.getElement().querySelectorAll(`.trip-tabs__btn`);
 
-    MenuItem.forEach((item) => {
+    menuItems.forEach((item) => {
       item.addEventListener(`click`, (evt) => {
         evt.preventDefault();
         menuClickHandler(evt.target.dataset.menuItem);
@@ -46,9 +46,9 @@ export default class Menu extends AbstractComponent {
       return;
     }
 
-    const MenuItem = this.getElement().querySelectorAll(`.trip-tabs__btn`);
+    const menuItems = this.getElement().querySelectorAll(`.trip-tabs__btn`);
 
-    MenuItem.forEach((item) => {
+    menuItems.forEach((item) => {
       item.classList.remove(`trip-tabs__btn--active`);
     });
 
