@@ -6,6 +6,8 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
 
+import moment from 'moment';
+
 const createTypeOptionMarkup = (type, currentType) => {
   return (
     `<div class="event__type-item">
@@ -55,7 +57,7 @@ const createOfferMarkup = (offer, isChosen) => {
 
   return (
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" ${isChosen ? `checked` : ``}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" data-type="${title}" ${isChosen ? `checked` : ``}>
       <label class="event__offer-label" for="event-offer-${title}-1">
         <span class="event__offer-title">${title}</span>
         &plus;
@@ -215,6 +217,8 @@ export default class WaypointEdit extends AbstractSmartComponent {
     if (this._isAddMode) {
       this.applyFlatpickr();
     }
+
+    this._subscribeOnEvents();
   }
 
   get id() {
@@ -318,15 +322,13 @@ export default class WaypointEdit extends AbstractSmartComponent {
   }
 
   resetWaypoint() {
-    const {_type, _city, _time, _price, _offers, _destination, _photos} = this._waypointReset;
+    const {_type, _time, _price, _offers, _destination} = this._waypointReset;
 
     this._type = _type;
-    this._city = _city;
     this._time = _time;
     this._price = _price;
     this._offers = _offers;
     this._destination = _destination;
-    this._photos = _photos;
 
     this.rerender();
   }
@@ -359,38 +361,6 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._addToFavoritesHandler = addToFavoritesHandler;
   }
 
-  setChangeEventTypeHandler(changeEventTypeHandler) {
-    this.getElement().querySelector(`.event__type-list`).addEventListener(`change`, (evt) => {
-      this._type = evt.target.value;
-      changeEventTypeHandler();
-    });
-
-    this._changeEventTypeHandler = changeEventTypeHandler;
-  }
-
-  setChangeEventCityHandler(changeEventCityHandler) {
-    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
-      const newDestination = this._Data.getDestinationByCity(evt.target.value);
-
-      this._destination.name = newDestination.name;
-      this._destination.description = newDestination.description;
-      this._destination.pictures = newDestination.pictures;
-
-      changeEventCityHandler();
-    });
-
-    this._changeEventCityHandler = changeEventCityHandler;
-  }
-
-  setChangePriceHandler(changePriceHandler) {
-    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
-      this._price = Number(evt.target.value);
-      changePriceHandler();
-    });
-
-    this._changePriceHandler = changePriceHandler;
-  }
-
   recoveryListeners() {
     if (!this._isAddMode) {
       this.setAddToFavoritesHandler(this._addToFavoritesHandler);
@@ -398,10 +368,9 @@ export default class WaypointEdit extends AbstractSmartComponent {
     }
 
     this.setSubmitWaypointHandler(this._submitWaypointHandler);
-    this.setChangeEventTypeHandler(this._changeEventTypeHandler);
-    this.setChangeEventCityHandler(this._changeEventCityHandler);
-    this.setChangePriceHandler(this._changeEventTypeHandler);
     this.setDeleteWaypointHandler(this._deleteWaypointHandler);
+
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
@@ -411,5 +380,61 @@ export default class WaypointEdit extends AbstractSmartComponent {
   removeElement() {
     this.destroyFlatpickr();
     super.removeElement();
+  }
+
+  _subscribeOnEvents() {
+    this.getElement().querySelector(`.event__type-list`).addEventListener(`change`, (evt) => {
+      this._type = evt.target.value;
+      this.rerender();
+    });
+
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
+      const newDestination = this._Data.getDestinationByCity(evt.target.value);
+
+      this._destination.name = newDestination.name;
+      this._destination.description = newDestination.description;
+      this._destination.pictures = newDestination.pictures;
+
+      this.rerender();
+    });
+
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
+      this._price = Number(evt.target.value);
+      this.rerender();
+    });
+
+    if (this.getElement().querySelector(`.event__section--offers`) !== null) {
+      this.getElement().querySelector(`.event__section--offers`).addEventListener(`change`, (evt) => {
+        const type = evt.target.dataset.type;
+        const offersOfType = this._Data.getOffersByType(this.type);
+
+        let isActive = false;
+
+        this.offers.forEach((offer, index) => {
+          if (offer.title === type) {
+            this.offers.splice(index, 1);
+            isActive = true;
+          }
+        });
+
+        if (isActive) {
+          return;
+        }
+
+        offersOfType.forEach((offer) => {
+          if (offer.title === type) {
+            this.offers.push(offer);
+          }
+        });
+
+        this.rerender();
+      });
+    }
+
+    this.getElement().querySelector(`.event__field-group--time`).addEventListener(`change`, (evt) => {
+      if (evt.target.name === `event-end-time`) {
+        this.time.start.raw = moment(evt.target.value);
+      }
+    });
   }
 }

@@ -59,6 +59,19 @@ export default class Api {
       .then((response) => response.json());
   }
 
+  addWaypoint(data) {
+    const params = {
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(data.toRaw()),
+      headers: new Headers({'Content-Type': `application/json`})
+    };
+
+    return this._load(params)
+      .then((response) => response.json())
+      .then(Waypoint.parseWaypoint);
+  }
+
   saveWaypoint(data) {
     const params = {
       url: `points/${data.id}`,
@@ -70,5 +83,15 @@ export default class Api {
     return this._load(params)
       .then((response) => response.json())
       .then(Waypoint.parseWaypoint);
+  }
+
+  deleteWaypoint(data) {
+    const params = {
+      url: `points/${data.id}`,
+      method: Method.DELETE,
+      headers: new Headers({'Content-Type': `application/json`})
+    };
+
+    return this._load(params);
   }
 }

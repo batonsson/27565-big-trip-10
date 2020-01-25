@@ -5,6 +5,18 @@ import PointController, {Mode as PointControllerMode} from './point-controller';
 import RouteTrip from '../components/route-trip';
 import RouteDay from '../components/route-day';
 import Sort from '../components/sort';
+import {DataHandleTypes} from '../utils/const';
+
+const ButtonState = {
+  SAVE: {
+    DEFAULT: `Save`,
+    IN_PROGRESS: `Saving...`
+  },
+  DELETE: {
+    DEFAULT: `Delete`,
+    IN_PROGRESS: `Deleting...`
+  },
+};
 
 const sortByTime = (next, prev) => {
   return prev.time.diff.raw - next.time.diff.raw;
@@ -26,6 +38,29 @@ const sortWaypoints = (waypoints, sortType) => {
   return waypoints;
 };
 
+const toggleFormActive = (form, isActive) => {
+  for (const field of form.elements) {
+    field.disabled = !isActive;
+  }
+};
+
+const changeButtonState = (button, state) => {
+  button.textContent = state;
+};
+
+const handleCatch = (button, buttonText, source) => {
+  changeButtonState(button, buttonText);
+  toggleFormError(source, true);
+};
+
+const toggleFormError = (form, isError) => {
+  if (isError) {
+    form.classList.add(`event--error`);
+  } else {
+    form.classList.remove(`event--error`);
+  }
+};
+
 export default class TripController {
   constructor(Waypoints, Data, API, container) {
     this._Waypoints = Waypoints;
@@ -44,19 +79,64 @@ export default class TripController {
   }
 
   _dataChangeHandler(_PointController, waypoint, type) {
+    const source = _PointController._WaypointEdit.getElement();
+    toggleFormActive(source, false);
+    toggleFormError(source, false);
+
+    let button = null;
+
     switch (type) {
-      case `Add`:
+      case DataHandleTypes.ADD:
+        button = source.querySelector(`.event__save-btn`);
+        changeButtonState(button, ButtonState.SAVE.IN_PROGRESS);
+
+        this._API.addWaypoint(waypoint)
+          .then(() => {
+            _PointController.destroy();
+            this._Waypoints.addWaypoint(waypoint);
+            this.renderWaypoints(this._Sort.activeSortType);
+          })
+          .catch(() => {
+            handleCatch(button, ButtonState.SAVE.DEFAULT, source);
+          })
+          .finally(() => {
+            toggleFormActive(source, true);
+          });
         break;
-      case `Delete`:
+
+      case DataHandleTypes.SAVE:
+        button = source.querySelector(`.event__save-btn`);
+        changeButtonState(button, ButtonState.SAVE.IN_PROGRESS);
+
+        this._API.saveWaypoint(waypoint)
+          .then((newWaypoint) => {
+            this._Waypoints.updateWaypoint(newWaypoint);
+            this.renderWaypoints(this._Sort.activeSortType);
+          })
+          .catch(() => {
+            handleCatch(button, ButtonState.SAVE.DEFAULT, source);
+          })
+          .finally(() => {
+            toggleFormActive(source, true);
+          });
         break;
-      case `Change`:
-        _PointController._WaypointEdit.rerender();
-        break;
-      case `Submit`:
-        this._API.saveWaypoint(waypoint).then((newWaypoint) => {
-          this._Waypoints.updateWaypoint(newWaypoint);
-          this.renderWaypoints(this._Sort.activeSortType);
-        });
+
+      case DataHandleTypes.DELETE:
+        button = source.querySelector(`.event__reset-btn`);
+        changeButtonState(button, ButtonState.DELETE.IN_PROGRESS);
+
+        this._API.deleteWaypoint(waypoint)
+          .then(() => {
+            _PointController.destroy();
+            this._Waypoints.deleteWaypoint(waypoint.id);
+            this.renderWaypoints(this._Sort.activeSortType);
+          })
+          .catch(() => {
+            handleCatch(button, ButtonState.DELETE.DEFAULT, source);
+          })
+          .finally(() => {
+            toggleFormActive(source, true);
+          });
         break;
     }
   }

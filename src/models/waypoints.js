@@ -54,7 +54,6 @@ export default class Waypoints {
   }
 
   addWaypoint(waypoint) {
-    waypoint.id = this._waypoints.length + 1;
     this._waypoints.unshift(waypoint);
   }
 

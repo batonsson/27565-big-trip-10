@@ -13,11 +13,9 @@ const assembleData = (rawData) => {
     values: []
   };
 
-  for (const key in rawData) {
-    if (key) {
-      data.labels.push(key);
-      data.values.push(rawData[key]);
-    }
+  for (const [key] of Object.entries(rawData)) {
+    data.labels.push(key);
+    data.values.push(rawData[key]);
   }
 
   return data;

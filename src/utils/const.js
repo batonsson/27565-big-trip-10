@@ -124,3 +124,9 @@ export const CHART_TYPES = {
   TRANSPORT: `transport`,
   TIME: `time`
 };
+
+export const DataHandleTypes = {
+  ADD: `add`,
+  SAVE: `save`,
+  DELETE: `delete`
+};

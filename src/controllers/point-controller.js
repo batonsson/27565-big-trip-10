@@ -1,4 +1,4 @@
-import {KEYCODES} from '../utils/const';
+import {KEYCODES, DataHandleTypes} from '../utils/const';
 import Utils from '../utils/utils';
 import {remove} from '../utils/render';
 import WaypointModel from '../models/waypoint';
@@ -68,29 +68,14 @@ export default class PointController {
     this._mode = mode;
     this._WaypointEdit = new WaypointEdit(waypoint, this._Data, this._mode === Mode.ADDING);
 
-    this._WaypointEdit.setChangeEventTypeHandler(() => {
-      this._dataChangeHandler(this, waypoint, `Change`);
-    });
-
-    this._WaypointEdit.setChangeEventCityHandler(() => {
-      this._dataChangeHandler(this, waypoint, `Change`);
-    });
-
-    this._WaypointEdit.setChangePriceHandler(() => {
-      this._dataChangeHandler(this, waypoint, `Change`);
-    });
-
     if (this._mode === Mode.ADDING) {
       const addWaypointButton = document.querySelector(`.trip-main__event-add-btn`);
 
       this._WaypointEdit.setSubmitWaypointHandler((evt) => {
         evt.preventDefault();
 
-        const newWaypoint = this._WaypointEdit.data;
-
-        this._dataChangeHandler(this, null, newWaypoint);
-
-        this.destroy();
+        waypoint.setData(this._WaypointEdit.data);
+        this._dataChangeHandler(this, waypoint, DataHandleTypes.ADD);
         addWaypointButton.disabled = false;
       });
 
@@ -114,18 +99,17 @@ export default class PointController {
 
       this._WaypointEdit.setAddToFavoritesHandler(() => {
         waypoint.setData(this._WaypointEdit.data);
-        this._dataChangeHandler(this, waypoint, `Submit`);
+        this._dataChangeHandler(this, waypoint, DataHandleTypes.SAVE);
       });
 
       this._WaypointEdit.setSubmitWaypointHandler((evt) => {
         evt.preventDefault();
         waypoint.setData(this._WaypointEdit.data);
-        this._dataChangeHandler(this, waypoint, `Submit`);
+        this._dataChangeHandler(this, waypoint, DataHandleTypes.SAVE);
       });
 
       this._WaypointEdit.setDeleteWaypointHandler(() => {
-        this.destroy();
-        this._dataChangeHandler(this, waypoint, null);
+        this._dataChangeHandler(this, waypoint, DataHandleTypes.DELETE);
       });
     }
 

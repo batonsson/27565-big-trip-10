@@ -1,11 +1,13 @@
 export default class Data {
   constructor() {
     this._destinations = [];
-    this._offers = [];
+    this._offers = {};
   }
 
   setOffers(offers) {
-    this._offers = offers;
+    for (const [, entry] of Object.entries(offers)) {
+      this._offers[entry.type] = entry.offers;
+    }
   }
 
   setDestinations(destinations) {
@@ -16,10 +18,12 @@ export default class Data {
     return this._destinations;
   }
 
+  get offers() {
+    return this._offers;
+  }
+
   getOffersByType(type) {
-    return this._offers.filter((offer) => {
-      return offer.type === type;
-    })[0].offers;
+    return this._offers[type] || [];
   }
 
   getDestinationByCity(city) {

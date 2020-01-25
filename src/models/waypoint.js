@@ -134,7 +134,8 @@ export default class Waypoint {
       },
       'base_price': 500,
       'isFavorite': false,
-      'offers': []
+      'offers': [],
+      'is_favorite': false
     };
   }
 
