@@ -4,6 +4,7 @@ import Waypoint from '../components/waypoint';
 import WaypointEdit from '../components/waypoint-edit';
 import {Keycode, DataHandleType} from '../utils/const';
 import {remove} from '../utils/render';
+import {debounce} from 'lodash';
 
 export const Mode = {
   ADDING: `adding`,
@@ -105,10 +106,13 @@ export default class PointController {
 
       this._WaypointEdit.setCloseWaypointEditHandlers(this._viewChangeHandler);
 
-      this._WaypointEdit.setAddToFavoritesHandler(() => {
-        waypoint.setData(this._WaypointEdit.data);
-        this._dataChangeHandler(this, waypoint, DataHandleType.SAVE);
-      });
+      this._WaypointEdit.setAddToFavoritesHandler(debounce(
+          () => {
+            waypoint.setData(this._WaypointEdit.data);
+            this._dataChangeHandler(this, waypoint, DataHandleType.SAVE);
+          },
+          150
+      ));
 
       this._WaypointEdit.setSubmitWaypointHandler((evt) => {
         evt.preventDefault();

@@ -17,8 +17,6 @@ export default class Provider {
     this._api = api;
     this._store = store;
     this._isSynchronized = true;
-
-    window.st = this;
   }
 
   get isSynchronized() {

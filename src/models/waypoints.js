@@ -16,12 +16,15 @@ export default class Waypoints {
   constructor() {
     this._waypoints = [];
     this._filter = FilterType.EVERYTHING;
+
+    this._tripHandler = null;
+    this._filterHandler = null;
   }
 
-  getWaypoints() {
+  getWaypoints(type) {
     let waypoints = [];
 
-    switch (this._filter) {
+    switch (type || this._filter) {
       case FilterType.EVERYTHING:
         waypoints = this._waypoints;
         break;
@@ -53,8 +56,13 @@ export default class Waypoints {
     this._tripHandler = tripHandler;
   }
 
+  filterAvailabilityHandler(filterHandler) {
+    this._filterHandler = filterHandler;
+  }
+
   addWaypoint(waypoint) {
     this._waypoints.unshift(waypoint);
+    this._filterHandler();
   }
 
   updateWaypoint(waypoint) {
@@ -65,5 +73,6 @@ export default class Waypoints {
   deleteWaypoint(id) {
     const index = getWaypointIndex(this._waypoints, id);
     this._waypoints.splice(index, 1);
+    this._filterHandler();
   }
 }
