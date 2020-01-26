@@ -24,3 +24,9 @@ export const DataHandleType = {
   SAVE: `save`,
   DELETE: `delete`
 };
+
+export const StoreData = {
+  WAYPOINTS: `waypoints`,
+  OFFERS: `offers`,
+  DESTINATIONS: `destinations`
+};

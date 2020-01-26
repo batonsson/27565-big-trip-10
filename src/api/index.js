@@ -94,4 +94,16 @@ export default class Api {
 
     return this._load(params);
   }
+
+  sync(data) {
+    const params = {
+      url: `points/sync`,
+      method: Method.POST,
+      body: JSON.stringify(data),
+      headers: new Headers({'Content-Type': `application/json`})
+    };
+
+    return this._load(params)
+      .then((response) => response.json());
+  }
 }
