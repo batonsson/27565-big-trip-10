@@ -2,11 +2,11 @@ import AbstractComponent from './abstract-component';
 import Utils from '../utils/utils';
 
 const createFilterMarkup = (filter) => {
-  const {value, type, isActive} = filter;
+  const {value, type, isActive, isDisabled} = filter;
 
   return (
     `<div class="trip-filters__filter">
-      <input id="filter-${value}" class="trip-filters__filter-input  visually-hidden" type="${type}" name="trip-filter" value="${value}" ${isActive ? `checked` : ``}>
+      <input id="filter-${value}" class="trip-filters__filter-input  visually-hidden" type="${type}" name="trip-filter" value="${value}" ${isActive ? `checked` : ``} ${isDisabled ? `disabled` : ``}>
       <label class="trip-filters__filter-label" for="filter-${value}">${Utils.capitalizeFirstLetter(value)}</label>
     </div>`
   );
