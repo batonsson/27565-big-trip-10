@@ -9,20 +9,26 @@ const getPossibleWaypoints = (waypoints, possibleTypes) => {
 
 const assembleData = (rawData) => {
   const data = {
+    label: ``,
     labels: [],
     values: []
   };
 
-  for (const [key] of Object.entries(rawData)) {
-    data.labels.push(key);
-    data.values.push(rawData[key]);
+  for (const key in rawData.data) {
+    if (key) {
+      data.labels.push(key);
+      data.values.push(rawData.data[key]);
+    }
   }
+
+  data.label = rawData.label;
 
   return data;
 };
 
 const fetchChartMoneyData = (_Waypoints) => {
   const data = {};
+  const label = `MONEY`;
   const targetWaypoints = _Waypoints.getWaypoints();
 
   targetWaypoints.forEach((waypoint) => {
@@ -30,11 +36,12 @@ const fetchChartMoneyData = (_Waypoints) => {
     data[waypoint.type] = start + waypoint.price;
   });
 
-  return data;
+  return {data, label};
 };
 
 const fetchChartTransportData = (_Waypoints) => {
   const data = {};
+  const label = `TRANSPORT`;
   const possibleTypes = [`bus`, `drive`, `flight`, `ship`, `taxi`, `train`];
   const targetWaypoints = getPossibleWaypoints(_Waypoints.getWaypoints(), possibleTypes);
 
@@ -43,11 +50,12 @@ const fetchChartTransportData = (_Waypoints) => {
     data[waypoint.type] = start + 1;
   });
 
-  return data;
+  return {data, label};
 };
 
 const fetchChartTimeData = (_Waypoints) => {
   const data = {};
+  const label = `TIME`;
   const targetWaypoints = _Waypoints.getWaypoints();
 
   targetWaypoints.forEach((waypoint) => {
@@ -55,7 +63,7 @@ const fetchChartTimeData = (_Waypoints) => {
     data[waypoint.type] = start + Math.floor(moment.duration(waypoint.time.diff.raw).asHours());
   });
 
-  return data;
+  return {data, label};
 };
 
 export const fetchChartData = (_Waypoints, type) => {

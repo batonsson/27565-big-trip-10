@@ -1,10 +1,11 @@
 import AbstractSmartComponent from './abstract-smart-component';
 import Utils from '../utils/utils';
+import DOMPurify from 'dompurify';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
 
-export const EventType = [
+const EventType = [
   {
     value: `bus`,
     group: `transfer`
@@ -145,10 +146,10 @@ const createPhotoListMarkup = (photos) => {
   );
 };
 
-const getWaypointEditMarkup = (waypoint, Data, isAddMode) => {
+const getWaypointEditMarkup = (waypoint, data, isAddMode) => {
   const {type, time, price, offers, destination, isFavorite} = waypoint;
-  const offersByType = Data.getOffersByType(type);
-  const destinations = Data.getDestinations();
+  const offersByType = data.getOffersByType(type);
+  const destinations = data.getDestinations();
   const formClassName = isAddMode ? `trip-events__item  event event--edit` : `event event--edit`;
   const resetButtonText = isAddMode ? `Cancel` : `Delete`;
   const favoriteButton = isAddMode ? `` : `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
@@ -232,7 +233,7 @@ const getWaypointEditMarkup = (waypoint, Data, isAddMode) => {
 };
 
 export default class WaypointEdit extends AbstractSmartComponent {
-  constructor(waypoint, Data, isAddMode) {
+  constructor(waypoint, data, isAddMode) {
     super();
 
     const {id, type, time, price, offers, destination, isFavorite} = waypoint;
@@ -245,7 +246,7 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._destination = destination;
     this._isFavorite = isFavorite;
 
-    this._Data = Data;
+    this._data = data;
     this._isAddMode = isAddMode;
 
     this._waypointReset = JSON.parse(JSON.stringify(waypoint));
@@ -417,7 +418,7 @@ export default class WaypointEdit extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return getWaypointEditMarkup(this, this._Data, this._isAddMode);
+    return getWaypointEditMarkup(this, this._data, this._isAddMode);
   }
 
   removeElement() {
@@ -433,7 +434,21 @@ export default class WaypointEdit extends AbstractSmartComponent {
     });
 
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
-      const newDestination = this._Data.getDestinationByCity(evt.target.value);
+      const cities = this._data
+        .getDestinations()
+        .map((city) => city.name);
+      const newDestination = DOMPurify.sanitize(this._data.getDestinationByCity(evt.target.value));
+      const submitButton = this.getElement().querySelector(`.event__save-btn`);
+
+      if (!cities.includes(newDestination.name)) {
+        submitButton.disabled = true;
+        return;
+      } else if (newDestination.name === this._destination.name) {
+        return;
+      } else {
+        submitButton.disabled = false;
+      }
+
       this._destination.name = newDestination.name;
       this._destination.description = newDestination.description;
       this._destination.pictures = newDestination.pictures;
@@ -448,7 +463,7 @@ export default class WaypointEdit extends AbstractSmartComponent {
     if (this.getElement().querySelector(`.event__section--offers`) !== null) {
       this.getElement().querySelector(`.event__section--offers`).addEventListener(`change`, (evt) => {
         const type = evt.target.dataset.type;
-        const offersOfType = this._Data.getOffersByType(this.type);
+        const offersOfType = this._data.getOffersByType(this.type);
         let isActive = false;
 
         this.offers.forEach((offer, index) => {

@@ -42,16 +42,4 @@ export default class Filters extends AbstractComponent {
   getTemplate() {
     return (createFilterListMarkup(this._filterList));
   }
-
-  getElement() {
-    if (!this._element) {
-      this._element = Utils.createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }

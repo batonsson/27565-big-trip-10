@@ -3,8 +3,8 @@ import RouteDay from '../components/route-day';
 import RouteInfo from '../components/route-info';
 import RouteTrip from '../components/route-trip';
 import Sort from '../components/sort';
-import PointController, {Mode as PointControllerMode} from './point-controller';
-import {DataHandleType} from '../utils/const';
+import PointController from './point-controller';
+import {DataHandleType, Mode as PointControllerMode} from '../utils/const';
 import {render} from '../utils/render';
 
 const sortOptions = [
@@ -81,22 +81,22 @@ const toggleFormError = (form, isError) => {
 };
 
 const handleSuccess = (ctx) => {
-  ctx.renderWaypoints(ctx._Sort.activeSortType);
-  ctx._RouteInfo.recalculate(ctx._Waypoints.getWaypoints());
+  ctx.renderWaypoints(ctx._sort.activeSortType);
+  ctx._routeInfo.recalculate(ctx._waypointsModel.getWaypoints());
 };
 
 export default class TripController {
-  constructor(Waypoints, Data, API, container) {
-    this._Waypoints = Waypoints;
+  constructor(waypointsModel, data, api, container) {
+    this._waypointsModel = waypointsModel;
     this._container = container;
-    this._Sort = null;
-    this._RouteInfo = null;
-    this._RouteTrip = null;
-    this._PointControllers = [];
+    this._sort = null;
+    this._routeInfo = null;
+    this._routeTrip = null;
+    this._pointControllers = [];
     this._newPointControllers = null;
 
-    this._Data = Data;
-    this._API = API;
+    this._data = data;
+    this._api = api;
 
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
     this._sortClickHandler = this._sortClickHandler.bind(this);
@@ -104,8 +104,96 @@ export default class TripController {
     this._filterChangeHandler = this._filterChangeHandler.bind(this);
   }
 
-  _dataChangeHandler(_PointController, waypoint, type) {
-    const source = _PointController._WaypointEdit.getElement();
+  set RouteTrip(_routeTrip) {
+    this._routeTrip = _routeTrip;
+  }
+
+  renderWaypoints(sortType) {
+    this._pointControllers = [];
+    const waypoints = this._waypointsModel.getWaypoints();
+    const tripDayListBlock = this._container.querySelector(`.trip-days`);
+    tripDayListBlock.innerHTML = ``;
+
+    if (!waypoints.length) {
+      this._toggleNoWaypointsMessage(true);
+      return;
+    } else {
+      this._toggleNoWaypointsMessage(false);
+    }
+
+    let dayList;
+
+    switch (sortType) {
+      case `event`:
+        dayList = this._routeTrip.fetchDayList(waypoints);
+        break;
+      default:
+        dayList = [
+          {
+            date: null,
+            waypoints: sortWaypoints(waypoints, sortType),
+            index: null
+          }
+        ];
+    }
+
+    dayList.forEach((day) => {
+      const routeDay = new RouteDay(day);
+      render(tripDayListBlock, routeDay);
+      const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
+
+      routeDay.waypoints.forEach((waypoint) => {
+        const pointController = new PointController(tripWaypointsBlock, this._data, this._dataChangeHandler, this._viewChangeHandler);
+        this._pointControllers.push(pointController);
+        pointController.render(waypoint, PointControllerMode.DEFAULT);
+      });
+    });
+  }
+
+  init() {
+    this._routeInfo = new RouteInfo(this._waypointsModel.getWaypoints());
+    const tripRouteInfoBlock = document.querySelector(`.trip-main__trip-info`);
+    const tripCost = tripRouteInfoBlock.querySelector(`.trip-info__cost`);
+    render(tripRouteInfoBlock, this._routeInfo, tripCost);
+
+    this._sort = new Sort(sortOptions);
+    this._routeTrip = new RouteTrip();
+    render(this._container, this._sort);
+    render(this._container, this._routeTrip);
+
+    this._waypointsModel.filterChangeHandler(this._filterChangeHandler);
+
+    const sortButtons = document.querySelectorAll(`.trip-sort__btn`);
+
+    sortButtons.forEach((sortButton) => {
+      this._sort.setSortClickHandler(sortButton, this._sortClickHandler);
+    });
+
+    const addWaypointButton = document.querySelector(`.trip-main__event-add-btn`);
+
+    addWaypointButton.addEventListener(`click`, (evt) => {
+      if (!this._newPointController) {
+        this._newPointController = new PointController(this._container, this._data, this._dataChangeHandler, this._viewChangeHandler);
+      }
+
+      this._viewChangeHandler();
+      evt.target.disabled = true;
+      this._newPointController.render(null, PointControllerMode.ADDING);
+    });
+
+    this.renderWaypoints(this._sort.activeSortType);
+  }
+
+  show() {
+    this._container.classList.remove(`visually-hidden`);
+  }
+
+  hide() {
+    this._container.classList.add(`visually-hidden`);
+  }
+
+  _dataChangeHandler(pointController, waypoint, type) {
+    const source = pointController._waypointEdit.getElement();
     toggleFormActive(source, false);
     toggleFormError(source, false);
     let button = null;
@@ -115,10 +203,10 @@ export default class TripController {
         button = source.querySelector(`.event__save-btn`);
         changeButtonState(button, ButtonState.SAVE.IN_PROGRESS);
 
-        this._API.addWaypoint(waypoint)
+        this._api.addWaypoint(waypoint)
           .then((newWaypoint) => {
-            _PointController._closeWaypointAddHandler();
-            this._Waypoints.addWaypoint(newWaypoint);
+            pointController._closeWaypointAddHandler();
+            this._waypointsModel.addWaypoint(newWaypoint);
             handleSuccess(this);
           })
           .catch(() => {
@@ -133,9 +221,9 @@ export default class TripController {
         button = source.querySelector(`.event__save-btn`);
         changeButtonState(button, ButtonState.SAVE.IN_PROGRESS);
 
-        this._API.saveWaypoint(waypoint)
+        this._api.saveWaypoint(waypoint)
           .then((newWaypoint) => {
-            this._Waypoints.updateWaypoint(newWaypoint);
+            this._waypointsModel.updateWaypoint(newWaypoint);
             handleSuccess(this);
           })
           .catch(() => {
@@ -150,10 +238,10 @@ export default class TripController {
         button = source.querySelector(`.event__reset-btn`);
         changeButtonState(button, ButtonState.DELETE.IN_PROGRESS);
 
-        this._API.deleteWaypoint(waypoint)
+        this._api.deleteWaypoint(waypoint)
           .then(() => {
-            _PointController.destroy();
-            this._Waypoints.deleteWaypoint(waypoint.id);
+            pointController.destroy();
+            this._waypointsModel.deleteWaypoint(waypoint.id);
             handleSuccess(this);
           })
           .catch(() => {
@@ -171,7 +259,7 @@ export default class TripController {
   }
 
   _viewChangeHandler() {
-    this._PointControllers.forEach((pointController) => {
+    this._pointControllers.forEach((pointController) => {
       pointController.setDefaultView();
     });
 
@@ -181,7 +269,7 @@ export default class TripController {
   }
 
   _filterChangeHandler() {
-    this.renderWaypoints(this._Sort.activeSortType);
+    this.renderWaypoints(this._sort.activeSortType);
   }
 
   _toggleNoWaypointsMessage(show) {
@@ -195,93 +283,5 @@ export default class TripController {
       const noWaypointsMessageTemplate = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
       render(this._container, Utils.createElement(noWaypointsMessageTemplate));
     }
-  }
-
-  set RouteTrip(_RouteTrip) {
-    this._RouteTrip = _RouteTrip;
-  }
-
-  renderWaypoints(sortType) {
-    this._PointControllers = [];
-    const waypoints = this._Waypoints.getWaypoints();
-    const tripDayListBlock = this._container.querySelector(`.trip-days`);
-    tripDayListBlock.innerHTML = ``;
-
-    if (!waypoints.length) {
-      this._toggleNoWaypointsMessage(true);
-      return;
-    } else {
-      this._toggleNoWaypointsMessage(false);
-    }
-
-    let dayList;
-
-    switch (sortType) {
-      case `event`:
-        dayList = this._RouteTrip.fetchDayList(waypoints);
-        break;
-      default:
-        dayList = [
-          {
-            date: null,
-            waypoints: sortWaypoints(waypoints, sortType),
-            index: null
-          }
-        ];
-    }
-
-    dayList.forEach((day) => {
-      const _RouteDay = new RouteDay(day);
-      render(tripDayListBlock, _RouteDay);
-      const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
-
-      _RouteDay.waypoints.forEach((waypoint) => {
-        const _PointController = new PointController(tripWaypointsBlock, this._Data, this._dataChangeHandler, this._viewChangeHandler);
-        this._PointControllers.push(_PointController);
-        _PointController.render(waypoint, PointControllerMode.DEFAULT);
-      });
-    });
-  }
-
-  init() {
-    this._RouteInfo = new RouteInfo(this._Waypoints.getWaypoints());
-    const tripRouteInfoBlock = document.querySelector(`.trip-main__trip-info`);
-    const tripCost = tripRouteInfoBlock.querySelector(`.trip-info__cost`);
-    render(tripRouteInfoBlock, this._RouteInfo, tripCost);
-
-    this._Sort = new Sort(sortOptions);
-    this._RouteTrip = new RouteTrip(this._Waypoints.getWaypoints());
-    render(this._container, this._Sort);
-    render(this._container, this._RouteTrip);
-
-    this._Waypoints.filterChangeHandler(this._filterChangeHandler);
-
-    const sortButtons = document.querySelectorAll(`.trip-sort__btn`);
-
-    sortButtons.forEach((sortButton) => {
-      this._Sort.setSortClickHandler(sortButton, this._sortClickHandler);
-    });
-
-    const addWaypointButton = document.querySelector(`.trip-main__event-add-btn`);
-
-    addWaypointButton.addEventListener(`click`, (evt) => {
-      if (!this._newPointController) {
-        this._newPointController = new PointController(this._container, this._Data, this._dataChangeHandler, this._viewChangeHandler);
-      }
-
-      this._viewChangeHandler();
-      evt.target.disabled = true;
-      this._newPointController.render(null, PointControllerMode.ADDING);
-    });
-
-    this.renderWaypoints(this._Sort.activeSortType);
-  }
-
-  show() {
-    this._container.classList.remove(`visually-hidden`);
-  }
-
-  hide() {
-    this._container.classList.add(`visually-hidden`);
   }
 }

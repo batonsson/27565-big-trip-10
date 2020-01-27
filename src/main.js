@@ -16,13 +16,13 @@ const STORE_PREFIX = `taskmanager-localstorage`;
 const STORE_VER = `v1`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 
-const _Data = new Data();
+const data = new Data();
 
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
 const AUTH = `Basic eo0w590i12dkfipcv9`;
-const _Api = new Api(END_POINT, AUTH);
-const _Store = new Store(STORE_NAME, window.localStorage);
-const _Provider = new Provider(_Api, _Store);
+const api = new Api(END_POINT, AUTH);
+const store = new Store(STORE_NAME, window.localStorage);
+const provider = new Provider(api, store);
 
 window.addEventListener(`load`, () => {
   navigator.serviceWorker.register(`./sw.js`)
@@ -37,8 +37,8 @@ window.addEventListener(`offline`, () => {
 window.addEventListener(`online`, () => {
   document.title = document.title.substring(0, document.title.indexOf(` offline`));
 
-  if (!_Provider.isSynchronized) {
-    _Provider.sync();
+  if (!provider.isSynchronized) {
+    provider.sync();
   }
 });
 
@@ -47,57 +47,55 @@ const tripBodyBlock = document.querySelector(`.page-main .page-body__container`)
 const tripEventsBlock = tripBodyBlock.querySelector(`.trip-events`);
 const tripControlsBlock = tripMainBlock.querySelector(`.trip-main__trip-controls`);
 
-const _Waypoints = new Waypoints();
-const _FilterController = new FilterController(_Waypoints, tripControlsBlock);
-const _TripController = new TripController(_Waypoints, _Data, _Provider, tripEventsBlock);
-const _Menu = new Menu();
-const _Stats = new Stats();
+const waypointsModel = new Waypoints();
+const filterController = new FilterController(waypointsModel, tripControlsBlock);
+const tripController = new TripController(waypointsModel, data, provider, tripEventsBlock);
+const menu = new Menu();
+const stats = new Stats();
 
-window.trip = _TripController;
-
-_Menu.setMenuClickHandler((menuItem) => {
-  if (menuItem === _Menu.activeItem) {
+menu.setMenuClickHandler((menuItem) => {
+  if (menuItem === menu.activeItem) {
     return;
   }
 
   switch (menuItem) {
     case MenuItem.TABLE:
-      _Stats.hide();
-      _Stats.destroyAllCharts();
-      _TripController.show();
+      stats.hide();
+      stats.destroyAllCharts();
+      tripController.show();
       break;
     case MenuItem.STATS:
-      _TripController.hide();
-      _Stats.show();
-      _Stats.createChart(ChartType.MONEY, _Stats.createChartParams(fetchChartData(_Waypoints, ChartType.MONEY)));
-      _Stats.createChart(ChartType.TRANSPORT, _Stats.createChartParams(fetchChartData(_Waypoints, ChartType.TRANSPORT)));
-      _Stats.createChart(ChartType.TIME, _Stats.createChartParams(fetchChartData(_Waypoints, ChartType.TIME)));
+      tripController.hide();
+      stats.show();
+      stats.createChart(ChartType.MONEY, stats.createChartParams(fetchChartData(waypointsModel, ChartType.MONEY)));
+      stats.createChart(ChartType.TRANSPORT, stats.createChartParams(fetchChartData(waypointsModel, ChartType.TRANSPORT)));
+      stats.createChart(ChartType.TIME, stats.createChartParams(fetchChartData(waypointsModel, ChartType.TIME)));
       break;
   }
 
-  _Menu.setMenuItemActive(menuItem);
+  menu.setMenuItemActive(menuItem);
 });
 
-_Menu.setMenuItemActive(MenuItem.TABLE);
-_Stats.hide();
-_TripController.show();
+menu.setMenuItemActive(MenuItem.TABLE);
+stats.hide();
+tripController.show();
 
-render(tripControlsBlock, _Menu);
-render(tripBodyBlock, _Stats);
+render(tripControlsBlock, menu);
+render(tripBodyBlock, stats);
 
 const loadingWaypointsMessage = Utils.createElement(`<p class="trip-events__msg">Loading...</p>`);
 render(tripEventsBlock, loadingWaypointsMessage);
 
-const promiseOffers = _Provider.getOffers().then((response) => _Data.setOffers(response));
-const promiseDestinations = _Provider.getDestinations().then((response) => _Data.setDestinations(response));
+const promiseOffers = provider.getOffers().then((response) => data.setOffers(response));
+const promiseDestinations = provider.getDestinations().then((response) => data.setDestinations(response));
 
 Promise.all([promiseOffers, promiseDestinations]).then(() => {
-  _Provider.getWaypoints()
+  provider.getWaypoints()
     .then((waypoints) => {
       loadingWaypointsMessage.remove();
-      _Waypoints.setWaypoints(waypoints);
-      _FilterController.render();
-      _TripController.init();
+      waypointsModel.setWaypoints(waypoints);
+      filterController.render();
+      tripController.init();
     })
     .catch(() => {
       loadingWaypointsMessage.textContent = `Something is wrong. Do not try later. There is no try.`;

@@ -30,17 +30,9 @@ export default class Store {
     const store = this.getAll();
 
     if (type) {
-      if (!key) {
-        Object.assign(store[type], value);
-      } else {
-        Object.assign(store[type], {[key]: value});
-      }
+      Object.assign(store[type], key ? {[key]: value} : value);
     } else {
-      if (!key) {
-        Object.assign(store[type], value);
-      } else {
-        Object.assign(store, {[key]: value});
-      }
+      Object.assign(key ? store : store[type], key ? {[key]: value} : value);
     }
 
     this._storage.setItem(

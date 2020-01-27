@@ -1,5 +1,4 @@
 import AbstractComponent from './abstract-component';
-import Utils from '../utils/utils';
 
 const checkDayExists = (dayGiven, dayList) => {
   const check = {
@@ -59,17 +58,5 @@ export default class RouteTrip extends AbstractComponent {
 
   getTemplate() {
     return createRouteMarkup();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = Utils.createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

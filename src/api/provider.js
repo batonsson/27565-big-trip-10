@@ -4,12 +4,8 @@ import {StoreData} from '../utils/const';
 
 const getSyncedWaypoints = (items) => {
   return items
-    .filter(({success}) => {
-      return success;
-    })
-    .map(({payload}) => {
-      return payload.point;
-    });
+    .filter(({success}) => success)
+    .map(({payload}) => payload.point);
 };
 
 export default class Provider {

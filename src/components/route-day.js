@@ -1,5 +1,4 @@
 import AbstractComponent from './abstract-component';
-import Utils from '../utils/utils';
 
 const createRouteDayMarkup = (date, dayNumber) => {
   return (
@@ -33,17 +32,5 @@ export default class RouteDay extends AbstractComponent {
 
   getTemplate() {
     return createRouteDayMarkup(this._date, this._index, this._isDateVisible);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = Utils.createElement(this.getTemplate(this));
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

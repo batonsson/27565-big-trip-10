@@ -47,9 +47,7 @@ export default class Sort extends AbstractComponent {
 
   setSortClickHandler(sortButton, sortClickHandler) {
     sortButton.addEventListener(`click`, () => {
-      if (this._activeSortType === sortButton.dataset.sortType) {
-        return;
-      } else {
+      if (this._activeSortType !== sortButton.dataset.sortType) {
         this._activeSortType = sortButton.dataset.sortType;
         sortClickHandler(this._activeSortType);
       }

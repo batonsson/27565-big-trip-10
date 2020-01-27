@@ -30,3 +30,9 @@ export const StoreData = {
   OFFERS: `offers`,
   DESTINATIONS: `destinations`
 };
+
+export const Mode = {
+  ADDING: `adding`,
+  DEFAULT: `default`,
+  EDIT: `edit`,
+};

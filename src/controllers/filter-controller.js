@@ -37,43 +37,43 @@ const checkEnabledFilters = (filters, waypoints) => {
 };
 
 export default class FilterController {
-  constructor(Waypoints, container) {
-    this._Waypoints = Waypoints;
+  constructor(waypointsModel, container) {
+    this._waypointsModel = waypointsModel;
     this._container = container;
     this._activeFilterType = FilterType.EVERYTHING;
-    this._Filters = null;
+    this._filters = null;
 
     this._filterChangeHandler = this._filterChangeHandler.bind(this);
     this._filterAvailabilityHandler = this._filterAvailabilityHandler.bind(this);
   }
 
   render() {
-    const filterOptions = checkEnabledFilters(FilterOption, this._Waypoints);
-    this._Filters = new Filters(filterOptions);
+    const filterOptions = checkEnabledFilters(FilterOption, this._waypointsModel);
+    this._filters = new Filters(filterOptions);
 
-    this._Filters.setFilterChangeHandler((evt) => {
+    this._filters.setFilterChangeHandler((evt) => {
       this._filterChangeHandler(evt.target.value);
     });
 
-    this._Waypoints.filterAvailabilityHandler(this._filterAvailabilityHandler);
+    this._waypointsModel.filterAvailabilityHandler(this._filterAvailabilityHandler);
 
-    render(this._container, this._Filters);
+    render(this._container, this._filters);
   }
 
   _filterChangeHandler(filterType) {
-    this._Waypoints.setFilter(filterType);
+    this._waypointsModel.setFilter(filterType);
     this._activeFilterType = filterType;
   }
 
   _filterAvailabilityHandler() {
-    const filters = this._Filters.getElement().querySelectorAll(`.trip-filters__filter-input`);
+    const filters = this._filters.getElement().querySelectorAll(`.trip-filters__filter-input`);
 
     filters.forEach((filter) => {
-      filter.disabled = !this._Waypoints.getWaypoints(filter.value).length;
+      filter.disabled = !this._waypointsModel.getWaypoints(filter.value).length;
 
       if (filter.checked && filter.disabled) {
-        this._Waypoints.setFilter(FilterType.EVERYTHING);
-        this._Filters.getElement().querySelector(`#filter-everything`).checked = true;
+        this._waypointsModel.setFilter(FilterType.EVERYTHING);
+        this._filters.getElement().querySelector(`#filter-everything`).checked = true;
       }
     });
   }

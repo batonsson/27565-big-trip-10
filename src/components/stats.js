@@ -1,6 +1,5 @@
 import AbstractComponent from './abstract-component';
 import Chart from 'chart.js';
-// import chartjsPluginDatalabels from 'chartjs-plugin-datalabels';
 
 const createStatsMarkup = () => {
   return (
@@ -69,6 +68,7 @@ export default class Stats extends AbstractComponent {
 
     for (let i = 0; i < length; i++) {
       params.data.labels.push(data.labels[i]);
+      params.data.datasets[0].label = data.label;
       params.data.datasets[0].data.push(data.values[i]);
       params.data.datasets[0].backgroundColor.push(chartBarColor);
     }
