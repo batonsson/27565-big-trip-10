@@ -38,7 +38,6 @@ export default class Sort extends AbstractComponent {
 
     this._options = options;
     this._activeSortType = options.filter((option) => option.isActive)[0].value;
-    this._element = null;
   }
 
   get activeSortType() {

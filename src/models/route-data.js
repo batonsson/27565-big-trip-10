@@ -1,4 +1,4 @@
-export default class Data {
+export default class RouteData {
   constructor() {
     this._destinations = [];
     this._offers = {};

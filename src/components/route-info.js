@@ -76,12 +76,6 @@ export default class RouteInfo extends AbstractComponent {
     super();
 
     this._waypoints = waypoints;
-    this._cost = 0;
-    this._element = null;
-  }
-
-  get cost() {
-    return getRouteCost(this._waypoints);
   }
 
   getTemplate() {

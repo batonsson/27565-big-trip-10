@@ -233,7 +233,7 @@ const getWaypointEditMarkup = (waypoint, data, isAddMode) => {
 };
 
 export default class WaypointEdit extends AbstractSmartComponent {
-  constructor(waypoint, data, isAddMode) {
+  constructor(waypoint, routeData, isAddMode) {
     super();
 
     const {id, type, time, price, offers, destination, isFavorite} = waypoint;
@@ -246,7 +246,7 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._destination = destination;
     this._isFavorite = isFavorite;
 
-    this._data = data;
+    this._routeData = routeData;
     this._isAddMode = isAddMode;
 
     this._waypointReset = JSON.parse(JSON.stringify(waypoint));
@@ -418,7 +418,7 @@ export default class WaypointEdit extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return getWaypointEditMarkup(this, this._data, this._isAddMode);
+    return getWaypointEditMarkup(this, this._routeData, this._isAddMode);
   }
 
   removeElement() {
@@ -434,10 +434,10 @@ export default class WaypointEdit extends AbstractSmartComponent {
     });
 
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
-      const cities = this._data
+      const cities = this._routeData
         .getDestinations()
         .map((city) => city.name);
-      const newDestination = DOMPurify.sanitize(this._data.getDestinationByCity(evt.target.value));
+      const newDestination = DOMPurify.sanitize(this._routeData.getDestinationByCity(evt.target.value));
       const submitButton = this.getElement().querySelector(`.event__save-btn`);
 
       if (!cities.includes(newDestination.name)) {
@@ -463,7 +463,7 @@ export default class WaypointEdit extends AbstractSmartComponent {
     if (this.getElement().querySelector(`.event__section--offers`) !== null) {
       this.getElement().querySelector(`.event__section--offers`).addEventListener(`change`, (evt) => {
         const type = evt.target.dataset.type;
-        const offersOfType = this._data.getOffersByType(this.type);
+        const offersOfType = this._routeData.getOffersByType(this.type);
         let isActive = false;
 
         this.offers.forEach((offer, index) => {

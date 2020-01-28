@@ -7,11 +7,11 @@ import {remove} from '../utils/render';
 import {debounce} from 'lodash';
 
 export default class PointController {
-  constructor(container, data, dataChangeHandler, viewChangeHandler) {
+  constructor(container, routeData, dataChangeHandler, viewChangeHandler) {
     this._container = container;
     this._mode = null;
 
-    this._data = data;
+    this._routeData = routeData;
     this._dataChangeHandler = dataChangeHandler;
     this._viewChangeHandler = viewChangeHandler;
 
@@ -37,7 +37,7 @@ export default class PointController {
     }
 
     this._mode = mode;
-    this._waypointEdit = new WaypointEdit(waypoint, this._data, this._mode === Mode.ADDING);
+    this._waypointEdit = new WaypointEdit(waypoint, this._routeData, this._mode === Mode.ADDING);
 
     if (this._mode === Mode.ADDING) {
       document.removeEventListener(`keydown`, this._closeWaypointEscHandler);

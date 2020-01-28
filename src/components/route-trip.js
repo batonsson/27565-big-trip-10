@@ -28,8 +28,6 @@ const createRouteMarkup = () => {
 export default class RouteTrip extends AbstractComponent {
   constructor() {
     super();
-
-    this._element = null;
   }
 
   fetchDayList(waypoints) {

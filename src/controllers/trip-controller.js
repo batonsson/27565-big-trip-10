@@ -86,7 +86,7 @@ const handleSuccess = (ctx) => {
 };
 
 export default class TripController {
-  constructor(waypointsModel, data, api, container) {
+  constructor(waypointsModel, routeData, api, container) {
     this._waypointsModel = waypointsModel;
     this._container = container;
     this._sort = null;
@@ -95,7 +95,7 @@ export default class TripController {
     this._pointControllers = [];
     this._newPointControllers = null;
 
-    this._data = data;
+    this._routeData = routeData;
     this._api = api;
 
     this._dataChangeHandler = this._dataChangeHandler.bind(this);
@@ -143,7 +143,7 @@ export default class TripController {
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
 
       routeDay.waypoints.forEach((waypoint) => {
-        const pointController = new PointController(tripWaypointsBlock, this._data, this._dataChangeHandler, this._viewChangeHandler);
+        const pointController = new PointController(tripWaypointsBlock, this._routeData, this._dataChangeHandler, this._viewChangeHandler);
         this._pointControllers.push(pointController);
         pointController.render(waypoint, PointControllerMode.DEFAULT);
       });
@@ -173,7 +173,7 @@ export default class TripController {
 
     addWaypointButton.addEventListener(`click`, (evt) => {
       if (!this._newPointController) {
-        this._newPointController = new PointController(this._container, this._data, this._dataChangeHandler, this._viewChangeHandler);
+        this._newPointController = new PointController(this._container, this._routeData, this._dataChangeHandler, this._viewChangeHandler);
       }
 
       this._viewChangeHandler();

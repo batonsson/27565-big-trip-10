@@ -4,7 +4,7 @@ import Menu from './components/site-menu';
 import FilterController from './controllers/filter-controller';
 import Stats from './components/stats';
 import TripController from './controllers/trip-controller';
-import Data from './components/data';
+import RouteData from './models/route-data';
 import Api from './api/index';
 import Provider from './api/provider';
 import Store from './api/store';
@@ -16,7 +16,7 @@ const STORE_PREFIX = `taskmanager-localstorage`;
 const STORE_VER = `v1`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
 
-const data = new Data();
+const routeData = new RouteData();
 
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
 const AUTH = `Basic eo0w590i12dkfipcv9`;
@@ -49,7 +49,7 @@ const tripControlsBlock = tripMainBlock.querySelector(`.trip-main__trip-controls
 
 const waypointsModel = new Waypoints();
 const filterController = new FilterController(waypointsModel, tripControlsBlock);
-const tripController = new TripController(waypointsModel, data, provider, tripEventsBlock);
+const tripController = new TripController(waypointsModel, routeData, provider, tripEventsBlock);
 const menu = new Menu();
 const stats = new Stats();
 
@@ -86,8 +86,8 @@ render(tripBodyBlock, stats);
 const loadingWaypointsMessage = Utils.createElement(`<p class="trip-events__msg">Loading...</p>`);
 render(tripEventsBlock, loadingWaypointsMessage);
 
-const promiseOffers = provider.getOffers().then((response) => data.setOffers(response));
-const promiseDestinations = provider.getDestinations().then((response) => data.setDestinations(response));
+const promiseOffers = provider.getOffers().then((response) => routeData.setOffers(response));
+const promiseDestinations = provider.getDestinations().then((response) => routeData.setDestinations(response));
 
 Promise.all([promiseOffers, promiseDestinations]).then(() => {
   provider.getWaypoints()

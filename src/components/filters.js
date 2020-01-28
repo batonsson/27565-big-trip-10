@@ -32,7 +32,6 @@ export default class Filters extends AbstractComponent {
     super();
 
     this._filterList = filterList;
-    this._element = null;
   }
 
   setFilterChangeHandler(filterChangeHandler) {
