@@ -7,17 +7,12 @@ const Method = {
   DELETE: `DELETE`
 };
 
-const ResponseStatus = {
-  SUCCESS: 200,
-  REDIRECT: 300
-};
-
 const checkStatus = (response) => {
-  if (response.status >= ResponseStatus.SUCCESS && response.status < ResponseStatus.REDIRECT) {
+  if (response.ok) {
     return response;
-  } else {
-    throw new Error(`${response.status}: ${response.statusText}`);
   }
+
+  throw new Error(`${response.status}: ${response.statusText}`);
 };
 
 export default class Api {

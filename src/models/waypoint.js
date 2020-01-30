@@ -8,7 +8,7 @@ const getTimeDiff = (start, end) => {
   const days = moment.duration(dateTo.diff(dateFrom)).days();
   const hours = moment.duration(dateTo.diff(dateFrom)).hours();
   const minutes = moment.duration(dateTo.diff(dateFrom)).minutes();
-  const formatted = `${days ? `${days} D` : `` } ${days || hours ? `${hours} H` : `` } ${minutes ? `${minutes} M` : `` }`.trim();
+  const formatted = `${days ? `${days}D` : `` } ${days || hours ? `${hours}H` : `` } ${minutes ? `${minutes}M` : `` }`.trim();
 
   return {
     raw,
@@ -27,7 +27,7 @@ const getTime = (dateFrom, dateTo) => {
     [start, end] = [end, start];
   }
 
-  const time = {
+  return {
     start: {
       raw: start,
       F: moment(start).format(`DD/MM/YY HH:mm`),
@@ -44,8 +44,6 @@ const getTime = (dateFrom, dateTo) => {
     },
     diff: getTimeDiff(start, end)
   };
-
-  return time;
 };
 
 export default class Waypoint {

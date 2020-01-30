@@ -93,7 +93,7 @@ export default class TripController {
     this._routeInfo = null;
     this._routeTrip = null;
     this._pointControllers = [];
-    this._newPointControllers = null;
+    this._newPointController = null;
 
     this._routeData = routeData;
     this._api = api;
@@ -102,10 +102,6 @@ export default class TripController {
     this._sortClickHandler = this._sortClickHandler.bind(this);
     this._viewChangeHandler = this._viewChangeHandler.bind(this);
     this._filterChangeHandler = this._filterChangeHandler.bind(this);
-  }
-
-  set RouteTrip(_routeTrip) {
-    this._routeTrip = _routeTrip;
   }
 
   renderWaypoints(sortType) {

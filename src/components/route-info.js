@@ -36,15 +36,13 @@ const createDateMarkup = (date) => {
 };
 
 const getRouteCost = (waypoints) => {
-  const total = waypoints.reduce((subtotal, waypoint) => {
+  return waypoints.reduce((subtotal, waypoint) => {
     const {price, offers} = waypoint;
 
     const totalOffers = offers.reduce((subtotalOffers, offer) => subtotalOffers + offer.price, 0);
 
     return subtotal + price + totalOffers;
   }, 0);
-
-  return total;
 };
 
 const getRouteMarkup = (waypoints) => {

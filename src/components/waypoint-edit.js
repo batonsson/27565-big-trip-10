@@ -236,7 +236,6 @@ export default class WaypointEdit extends AbstractSmartComponent {
     this._isAddMode = isAddMode;
 
     this._waypointReset = JSON.parse(JSON.stringify(waypoint));
-    this._flatpickr = null;
 
     this._subscribeOnEvents();
   }
