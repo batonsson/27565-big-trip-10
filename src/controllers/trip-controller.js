@@ -117,18 +117,17 @@ export default class TripController {
     if (!waypoints.length) {
       this._toggleNoWaypointsMessage(true);
       return;
-    } else {
-      this._toggleNoWaypointsMessage(false);
     }
 
-    let dayList;
+    this._toggleNoWaypointsMessage(false);
+    let days;
 
     switch (sortType) {
       case `event`:
-        dayList = this._routeTrip.fetchDayList(waypoints);
+        days = this._routeTrip.fetchDayList(waypoints);
         break;
       default:
-        dayList = [
+        days = [
           {
             date: null,
             waypoints: sortWaypoints(waypoints, sortType),
@@ -137,7 +136,7 @@ export default class TripController {
         ];
     }
 
-    dayList.forEach((day) => {
+    days.forEach((day) => {
       const routeDay = new RouteDay(day);
       render(tripDayListBlock, routeDay);
       const tripWaypointsBlock = tripDayListBlock.querySelector(`.trip-days__item:last-child .trip-events__list`);
@@ -275,7 +274,7 @@ export default class TripController {
   _toggleNoWaypointsMessage(show) {
     const noWaypointsMessageElement = document.querySelector(`.trip-events__msg`);
 
-    if (noWaypointsMessageElement !== null) {
+    if (noWaypointsMessageElement) {
       noWaypointsMessageElement.remove();
     }
 

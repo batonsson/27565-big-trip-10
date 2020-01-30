@@ -8,7 +8,7 @@ const getTimeDiff = (start, end) => {
   const days = moment.duration(dateTo.diff(dateFrom)).days();
   const hours = moment.duration(dateTo.diff(dateFrom)).hours();
   const minutes = moment.duration(dateTo.diff(dateFrom)).minutes();
-  const formatted = `${days ? days + `D` : `` } ${days || hours ? hours + `H` : `` } ${minutes ? minutes + `M` : `` }`.trim();
+  const formatted = `${days ? `${days} D` : `` } ${days || hours ? `${hours} H` : `` } ${minutes ? `${minutes} M` : `` }`.trim();
 
   return {
     raw,
@@ -49,14 +49,14 @@ const getTime = (dateFrom, dateTo) => {
 };
 
 export default class Waypoint {
-  constructor(data) {
-    this._id = data.id;
-    this._type = data.type;
-    this._time = getTime(data.date_from, data.date_to);
-    this._price = data.base_price;
-    this._offers = data.offers;
-    this._destination = data.destination;
-    this._isFavorite = data.is_favorite;
+  constructor(waypoint) {
+    this._id = waypoint.id;
+    this._type = waypoint.type;
+    this._time = getTime(waypoint.date_from, waypoint.date_to);
+    this._price = waypoint.base_price;
+    this._offers = waypoint.offers;
+    this._destination = waypoint.destination;
+    this._isFavorite = waypoint.is_favorite;
   }
 
   get id() {

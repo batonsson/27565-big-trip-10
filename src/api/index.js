@@ -7,8 +7,13 @@ const Method = {
   DELETE: `DELETE`
 };
 
+const ResponseStatus = {
+  SUCCESS: 200,
+  REDIRECT: 300
+};
+
 const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
+  if (response.status >= ResponseStatus.SUCCESS && response.status < ResponseStatus.REDIRECT) {
     return response;
   } else {
     throw new Error(`${response.status}: ${response.statusText}`);
@@ -59,11 +64,11 @@ export default class Api {
       .then((response) => response.json());
   }
 
-  addWaypoint(data) {
+  addWaypoint(waypoint) {
     const params = {
       url: `points`,
       method: Method.POST,
-      body: JSON.stringify(data.toRaw()),
+      body: JSON.stringify(waypoint.toRaw()),
       headers: new Headers({'Content-Type': `application/json`})
     };
 
@@ -72,11 +77,11 @@ export default class Api {
       .then(Waypoint.parseWaypoint);
   }
 
-  saveWaypoint(data) {
+  saveWaypoint(waypoint) {
     const params = {
-      url: `points/${data.id}`,
+      url: `points/${waypoint.id}`,
       method: Method.PUT,
-      body: JSON.stringify(data.toRaw()),
+      body: JSON.stringify(waypoint.toRaw()),
       headers: new Headers({'Content-Type': `application/json`})
     };
 
@@ -85,9 +90,9 @@ export default class Api {
       .then(Waypoint.parseWaypoint);
   }
 
-  deleteWaypoint(data) {
+  deleteWaypoint(waypoint) {
     const params = {
-      url: `points/${data.id}`,
+      url: `points/${waypoint.id}`,
       method: Method.DELETE,
       headers: new Headers({'Content-Type': `application/json`})
     };
@@ -95,11 +100,11 @@ export default class Api {
     return this._load(params);
   }
 
-  sync(data) {
+  sync(waypoints) {
     const params = {
       url: `points/sync`,
       method: Method.POST,
-      body: JSON.stringify(data),
+      body: JSON.stringify(waypoints),
       headers: new Headers({'Content-Type': `application/json`})
     };
 

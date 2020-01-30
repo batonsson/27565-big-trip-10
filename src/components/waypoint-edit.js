@@ -5,7 +5,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
 
-const EventType = [
+const eventTypes = [
   {
     value: `bus`,
     group: `transfer`
@@ -58,13 +58,9 @@ const createTypeOptionMarkup = (type, currentType) => {
 };
 
 const createTypeListMarkup = (types, group, currentType) => {
-  let waipointTypeOptionsMarkup = ``;
-
-  types.forEach((type) => {
-    if (type.group === group) {
-      waipointTypeOptionsMarkup += createTypeOptionMarkup(type, currentType);
-    }
-  });
+  const waipointTypeOptionsMarkup = types
+    .filter((type) => type.group === group)
+    .reduce((html, element) => html + createTypeOptionMarkup(element, currentType), ``);
 
   return (
     `<fieldset class="event__type-group">
@@ -79,11 +75,7 @@ const createCityOptionMarkup = (city) => {
 };
 
 const createCityDatalistMarkup = (destinations) => {
-  let cityDatalistMarkup = ``;
-
-  destinations.forEach((destination) => {
-    cityDatalistMarkup += createCityOptionMarkup(destination.name);
-  });
+  const cityDatalistMarkup = destinations.reduce((html, element) => html + createCityOptionMarkup(element.name), ``);
 
   return (
     `<datalist id="destination-list-1">
@@ -108,12 +100,10 @@ const createOfferMarkup = (offer, isChosen) => {
 };
 
 const createOfferListMarkup = (offersAll, offersChecked) => {
-  let offersMarkup = ``;
-
-  offersAll.forEach((offer) => {
-    const waypointOffers = offersChecked.filter((offerChecked) => offerChecked.title === offer.title);
-    offersMarkup += createOfferMarkup(waypointOffers[0] || offer, !!waypointOffers.length);
-  });
+  const offersMarkup = offersAll.reduce((html, element) => {
+    const waypointOffers = offersChecked.filter((offerChecked) => offerChecked.title === element.title);
+    return html + createOfferMarkup(waypointOffers[0] || element, !!waypointOffers.length);
+  }, ``);
 
   return (
     `<div class="event__available-offers">
@@ -131,11 +121,7 @@ const createPhotoMarkup = (photo) => {
 };
 
 const createPhotoListMarkup = (photos) => {
-  let photosMarkup = ``;
-
-  photos.forEach((sight) => {
-    photosMarkup += createPhotoMarkup(sight);
-  });
+  const photosMarkup = photos.reduce((html, element) => html + createPhotoMarkup(element), ``);
 
   return (
     `<div class="event__photos-container">
@@ -172,8 +158,8 @@ const getWaypointEditMarkup = (waypoint, data, isAddMode) => {
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
           <div class="event__type-list">
-            ${createTypeListMarkup(EventType, `transfer`, type)}
-            ${createTypeListMarkup(EventType, `activity`, type)}
+            ${createTypeListMarkup(eventTypes, `transfer`, type)}
+            ${createTypeListMarkup(eventTypes, `activity`, type)}
           </div>
         </div>
 
@@ -443,11 +429,13 @@ export default class WaypointEdit extends AbstractSmartComponent {
       if (!cities.includes(newDestination.name)) {
         submitButton.disabled = true;
         return;
-      } else if (newDestination.name === this._destination.name) {
-        return;
-      } else {
-        submitButton.disabled = false;
       }
+
+      if (newDestination.name === this._destination.name) {
+        return;
+      }
+
+      submitButton.disabled = false;
 
       this._destination.name = newDestination.name;
       this._destination.description = newDestination.description;
@@ -460,7 +448,7 @@ export default class WaypointEdit extends AbstractSmartComponent {
       this.rerender();
     });
 
-    if (this.getElement().querySelector(`.event__section--offers`) !== null) {
+    if (this.getElement().querySelector(`.event__section--offers`)) {
       this.getElement().querySelector(`.event__section--offers`).addEventListener(`change`, (evt) => {
         const type = evt.target.dataset.type;
         const offersOfType = this._routeData.getOffersByType(this.type);

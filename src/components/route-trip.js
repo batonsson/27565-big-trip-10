@@ -1,12 +1,12 @@
 import AbstractComponent from './abstract-component';
 
-const checkDayExists = (dayGiven, dayList) => {
+const checkDayExists = (dayGiven, days) => {
   const check = {
     exists: false,
     index: null
   };
 
-  check.exists = dayList.some((dayExisting, index) => {
+  check.exists = days.some((dayExisting, index) => {
     const exists = dayExisting.date.formatted === dayGiven.time.start.MD;
 
     if (exists) {
@@ -31,27 +31,27 @@ export default class RouteTrip extends AbstractComponent {
   }
 
   fetchDayList(waypoints) {
-    const dayList = [];
+    const days = [];
     waypoints = waypoints.sort((prev, next) => prev.time.start.raw - next.time.start.raw);
 
     waypoints.forEach((waypoint) => {
-      const {exists, index} = checkDayExists(waypoint, dayList);
+      const {exists, index} = checkDayExists(waypoint, days);
 
       if (exists) {
-        dayList[index].waypoints.push(waypoint);
+        days[index].waypoints.push(waypoint);
       } else {
-        dayList.push({
+        days.push({
           date: {
             raw: waypoint.time.start.raw,
             formatted: waypoint.time.start.MD
           },
           waypoints: [waypoint],
-          index: dayList.length + 1
+          index: days.length + 1
         });
       }
     });
 
-    return dayList;
+    return days;
   }
 
   getTemplate() {

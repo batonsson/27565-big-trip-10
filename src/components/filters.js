@@ -13,11 +13,7 @@ const createFilterMarkup = (filter) => {
 };
 
 const createFilterListMarkup = (filterList) => {
-  let filterListMarkup = ``;
-
-  filterList.forEach((element) => {
-    filterListMarkup += createFilterMarkup(element);
-  });
+  const filterListMarkup = filterList.reduce((html, element) => html + createFilterMarkup(element), ``);
 
   return (
     `<form class="trip-filters" action="#" method="get">

@@ -15,14 +15,13 @@ import {fetchChartData} from './utils/chart-fetch';
 const STORE_PREFIX = `taskmanager-localstorage`;
 const STORE_VER = `v1`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
-
-const routeData = new RouteData();
-
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip`;
 const AUTH = `Basic eo0w590i12dkfipcv9`;
+
 const api = new Api(END_POINT, AUTH);
 const store = new Store(STORE_NAME, window.localStorage);
 const provider = new Provider(api, store);
+const routeData = new RouteData();
 
 window.addEventListener(`load`, () => {
   navigator.serviceWorker.register(`./sw.js`)

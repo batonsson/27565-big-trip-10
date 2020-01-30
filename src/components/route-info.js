@@ -1,15 +1,7 @@
 import AbstractComponent from './abstract-component';
 import Utils from '../utils/utils';
 
-const fetchRouteCities = (waypoints) => {
-  const cities = [];
-
-  waypoints.forEach((waypoint) => {
-    cities.push(waypoint.destination.name);
-  });
-
-  return cities;
-};
+const fetchRouteCities = (waypoints) => waypoints.map((waypoint) => waypoint.destination.name);
 
 const fetchRouteDate = (waypoints) => {
   return {
@@ -44,17 +36,13 @@ const createDateMarkup = (date) => {
 };
 
 const getRouteCost = (waypoints) => {
-  let total = 0;
-
-  waypoints.forEach((waypoint) => {
+  const total = waypoints.reduce((subtotal, waypoint) => {
     const {price, offers} = waypoint;
 
-    total += price;
+    const totalOffers = offers.reduce((subtotalOffers, offer) => subtotalOffers + offer.price, 0);
 
-    offers.forEach((offer) => {
-      total += offer.price;
-    });
-  });
+    return subtotal + price + totalOffers;
+  }, 0);
 
   return total;
 };

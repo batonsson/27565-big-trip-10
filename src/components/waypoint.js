@@ -1,6 +1,8 @@
 import AbstractComponent from './abstract-component';
 import Utils from '../utils/utils';
 
+const OFFERS_TO_SHOW = 3;
+
 const createOfferMarkup = (offer) => {
   const {title, price} = offer;
 
@@ -14,11 +16,7 @@ const createOfferMarkup = (offer) => {
 };
 
 const createOfferListMarkup = (offers) => {
-  let offersMarkup = ``;
-
-  offers.forEach((offer) => {
-    offersMarkup += createOfferMarkup(offer);
-  });
+  const offersMarkup = offers.reduce((html, element) => html + createOfferMarkup(element), ``);
 
   return (
     `<ul class="event__selected-offers">
@@ -52,7 +50,7 @@ const createWaypointMarkup = (waypoint) => {
 
       ${offers.length ? `
         <h4 class="visually-hidden">Offers:</h4>
-        ${createOfferListMarkup(offers)}
+        ${createOfferListMarkup(offers.slice(0, OFFERS_TO_SHOW))}
       ` : ``}
 
       <button class="event__rollup-btn" type="button">

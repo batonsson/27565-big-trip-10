@@ -4,6 +4,10 @@ export default class RouteData {
     this._offers = {};
   }
 
+  get offers() {
+    return this._offers;
+  }
+
   setOffers(offers) {
     for (const [, entry] of Object.entries(offers)) {
       this._offers[entry.type] = entry.offers;
@@ -16,10 +20,6 @@ export default class RouteData {
 
   getDestinations() {
     return this._destinations;
-  }
-
-  get offers() {
-    return this._offers;
   }
 
   getOffersByType(type) {
